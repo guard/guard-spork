@@ -1,3 +1,5 @@
+require 'socket'
+
 module Guard
   class Spork
     class Runner
