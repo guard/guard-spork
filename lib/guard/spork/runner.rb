@@ -52,8 +52,8 @@ module Guard
             print '.'
             next
           end
-          UI.info "Spork for #{sporked_gems} successufly #{action}ed", :reset => true
-          Notifier.notify "#{sporked_gems} successufly #{action}ed", :title => "Spork", :image => :success
+          UI.info "Spork for #{sporked_gems} successfully #{action}ed", :reset => true
+          Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success
           return true
         end
         UI.reset_line # workaround before Guard::UI update
