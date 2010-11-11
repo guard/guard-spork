@@ -55,7 +55,8 @@ module Guard
           Notifier.notify "#{sporked_gems} successufly #{action}ed", :title => "Spork", :image => :success
           return true
         end
-        UI.error "Could not #{action} Spork for #{sporked_gems}. Make sure you can use it manually first.", :reset => true
+        UI.reset_line # workaround before Guard::UI update
+        UI.error "Could not #{action} Spork for #{sporked_gems}. Make sure you can use it manually first."
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
       end
       

@@ -12,6 +12,7 @@ describe Guard::Spork do
   
   describe "start" do
     it "should start sporks" do
+      subject.runner.should_receive(:kill_sporks)
       subject.runner.should_receive(:launch_sporks).with("start")
       subject.start
     end
