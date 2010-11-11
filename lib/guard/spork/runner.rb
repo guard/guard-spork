@@ -6,7 +6,8 @@ module Guard
       attr_accessor :options
       
       def initialize(options = {})
-        options[:rspec_port] ||= 8989
+        options[:wait]          ||= 20 # seconds
+        options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
         @options = options
       end
@@ -42,7 +43,7 @@ module Guard
       end
       
       def verify_launches(action)
-        30.times do
+        options[:wait].times do
           sleep 1
           begin
             TCPSocket.new('localhost', options[:rspec_port]).close if rspec?

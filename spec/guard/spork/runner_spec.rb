@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Guard::Spork::Runner do
   subject { Guard::Spork::Runner.new }
   
-  its(:options) { should == { :cucumber_port => 8990, :rspec_port => 8989 } }
+  its(:options) { should == { :cucumber_port => 8990, :rspec_port => 8989, :wait => 20 } }
   
   describe "#launch_sporks" do
     before(:each) do

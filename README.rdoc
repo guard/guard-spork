@@ -52,6 +52,7 @@ Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can dis
 
 Available options:
 
+    :wait => 30 # Seconds to wait server launch, default 20
     :cucumber => false
     :rspec => false
     :bundler => false # don't use "bundle exec"
