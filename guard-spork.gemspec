@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.rubyforge_project         = 'guard-spork'
   
   s.add_dependency 'guard',   '>= 0.2.0'
-  s.add_dependency 'spork',   '~> 0.9.0.rc2'
+  s.add_dependency 'spork',   '>= 0.8.4'
   
   s.add_development_dependency 'bundler', '~> 1.0.3'
   s.add_development_dependency 'rspec',   '~> 2.1'
