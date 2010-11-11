@@ -33,4 +33,11 @@ describe Guard::Spork do
     end
   end
   
+  describe "start" do
+    it "should kill sporks'" do
+      subject.runner.should_receive(:kill_sporks)
+      subject.stop
+    end
+  end
+  
 end

@@ -26,5 +26,9 @@ module Guard
       runner.launch_sporks("reload")
     end
     
+    def stop
+      runner.kill_sporks
+    end
+    
   end
 end
