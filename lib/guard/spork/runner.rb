@@ -14,13 +14,13 @@ module Guard
       
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        system(spork_command("rspec")) if rspec?
-        system(spork_command("cucumber")) if cucumber?
+        IO.popen(spork_command("rspec")) if rspec?
+        IO.popen(spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
       
       def kill_sporks
-        system("kill $(ps aux | awk '/spork/&&!/awk/{print $2;}') >/dev/null 2>&1")
+        spork_pids.each { |pid| Process.kill("KILL", pid) }
       end
       
     private
@@ -38,7 +38,7 @@ module Guard
           cmd_parts << "-p #{options[:cucumber_port]}"
         end
         
-        cmd_parts << ">/dev/null 2>&1 < /dev/null &"
+        cmd_parts << "2>&1"
         cmd_parts.join(" ")
       end
       
@@ -59,6 +59,10 @@ module Guard
         UI.reset_line # workaround before Guard::UI update
         UI.error "Could not #{action} Spork for #{sporked_gems}. Make sure you can use it manually first."
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
+      end
+      
+      def spork_pids
+        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
       
       def sporked_gems
