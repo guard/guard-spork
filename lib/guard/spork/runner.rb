@@ -14,8 +14,8 @@ module Guard
       
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        IO.popen(spork_command("rspec")) if rspec?
-        IO.popen(spork_command("cucumber")) if cucumber?
+        system(spork_command("rspec")) if rspec?
+        system(spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
       
@@ -38,7 +38,7 @@ module Guard
           cmd_parts << "-p #{options[:cucumber_port]}"
         end
         
-        cmd_parts << "2>&1"
+        cmd_parts << ">/dev/null 2>&1 < /dev/null &"
         cmd_parts.join(" ")
       end
       

@@ -20,7 +20,7 @@ describe Guard::Spork::Runner do
       end
       
       it "should launch rspec spork server" do
-        IO.should_receive(:popen).with("spork -p 8989 2>&1")
+        subject.should_receive(:system).with("spork -p 8989 >/dev/null 2>&1 < /dev/null &")
         subject.launch_sporks("start")
       end
     end
@@ -34,7 +34,7 @@ describe Guard::Spork::Runner do
       end
       
       it "should launch cucumber spork server" do
-        IO.should_receive(:popen).with("spork cu -p 8990 2>&1")
+        subject.should_receive(:system).with("spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
         subject.launch_sporks("start")
       end
     end
@@ -49,8 +49,8 @@ describe Guard::Spork::Runner do
       end
       
       it "should launch rspec & cucumber spork server" do
-        IO.should_receive(:popen).with("spork -p 8989 2>&1")
-        IO.should_receive(:popen).with("spork cu -p 8990 2>&1")
+        subject.should_receive(:system).with("spork -p 8989 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:system).with("spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
         subject.launch_sporks("start")
       end
     end
@@ -65,8 +65,8 @@ describe Guard::Spork::Runner do
       end
       
       it "should launch rspec & cucumber spork server" do
-        IO.should_receive(:popen).with("bundle exec spork -p 8989 2>&1")
-        IO.should_receive(:popen).with("bundle exec spork cu -p 8990 2>&1")
+        subject.should_receive(:system).with("bundle exec spork -p 8989 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:system).with("bundle exec spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
         subject.launch_sporks("start")
       end
     end

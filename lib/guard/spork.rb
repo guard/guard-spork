@@ -10,6 +10,7 @@ module Guard
     def initialize(watchers = [], options = {})
       super
       @runner = Runner.new(options)
+      
     end
     
     def start
