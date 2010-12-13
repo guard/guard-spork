@@ -7,7 +7,7 @@ Spork guard allows to automatically & intelligently start/reload your RSpec/Cucu
 
 == Install
 
-Please be sure to have {guard}[http://github.com/guard/guard] installed before continue.
+Please be sure to have {Guard}[http://github.com/guard/guard] installed before continue.
 
 Install the gem:
 
@@ -23,14 +23,14 @@ Add guard definition to your Guardfile with:
 
 == Usage
 
-Please read {guard usage doc}[http://github.com/guard/guard#readme]
+Please read {Guard usage doc}[http://github.com/guard/guard#readme]
 
 == Guardfile
 
 Spork guard can be really be adapated to all kind of projects.
-Please read {guard doc}[http://github.com/guard/guard#readme] for more info about Guardfile DSL.
+Please read {Guard doc}[http://github.com/guard/guard#readme] for more info about Guardfile DSL.
 
-!!! Attention place Spork guard before rspec/cucumber guards !!!
+!!! IMPORTANT: place Spork guard before rspec/cucumber guards !!!
 
 === Rails app
 
@@ -44,7 +44,7 @@ Please read {guard doc}[http://github.com/guard/guard#readme] for more info abou
 
 == Options
 
-Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can disabled them via:
+Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can disable any of them with the corresponding options:
 
     guard 'spork', :cucumber => false, :bundler => false do
       ...
@@ -52,12 +52,20 @@ Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can dis
 
 Available options:
 
-    :wait => 30 # Seconds to wait server launch, default 20
+    :wait => 30            # Seconds to wait server launch, default 20
     :cucumber => false
     :rspec => false
-    :bundler => false # don't use "bundle exec"
-    :rspec_port => xxxx # default 8989
+    :bundler => false      # don't use "bundle exec"
+    :rspec_port => xxxx    # default 8989
     :cucumber_port => xxxx # default 8990
+
+== Common troubleshooting
+
+If you can start Spork manually but get the following error message when using Spork guard:
+
+    Starting Spork for RSpec ERROR: Could not start Spork for RSpec. Make sure you can use it manually first.
+
+Try to increase the value of the :wait option before any further investigation.
 
 == Development
 
