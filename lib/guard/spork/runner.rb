@@ -77,6 +77,7 @@ module Guard
         gems = []
         gems << "RSpec" if rspec?
         gems << "Cucumber" if cucumber?
+        gems << "Test::Unit" if test_unit?
         gems.join(' & ')
       end
       
