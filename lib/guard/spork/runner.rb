@@ -4,11 +4,12 @@ module Guard
   class Spork
     class Runner
       attr_accessor :options
-      
+
       def initialize(options = {})
         options[:wait]          ||= 20 # seconds
         options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
+        options[:test_unit_port] ||= 8988
         @options = options
       end
       
@@ -16,6 +17,7 @@ module Guard
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
         system(spork_command("rspec")) if rspec?
         system(spork_command("cucumber")) if cucumber?
+        system(spork_command("test_unit")) if test_unit?
         verify_launches(action)
       end
       
@@ -36,6 +38,8 @@ module Guard
         when "cucumber"
           cmd_parts << "cu"
           cmd_parts << "-p #{options[:cucumber_port]}"
+        when 'test_unit'
+          cmd_parts << "-p #{options[:test_unit_port]}"
         end
         
         cmd_parts << ">/dev/null 2>&1 < /dev/null &"
@@ -48,6 +52,7 @@ module Guard
           begin
             TCPSocket.new('localhost', options[:rspec_port]).close if rspec?
             TCPSocket.new('localhost', options[:cucumber_port]).close if cucumber?
+            TCPSocket.new('localhost', options[:test_unit_port]).close if test_unit?
           rescue Errno::ECONNREFUSED
             print '.'
             next
@@ -82,6 +87,10 @@ module Guard
       
       def cucumber?
         @cucumber ||= File.exist?("#{Dir.pwd}/features") && options[:cucumber] != false
+      end
+
+      def test_unit?
+        @test_unit ||= File.exist?("#{Dir.pwd}/test")
       end
       
     end
