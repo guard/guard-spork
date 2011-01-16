@@ -9,7 +9,7 @@ module Guard
         :cucumber_port => 8990, 
         :rspec_port => 8989,
         :test_unit_port => 8988,
-        :wait => 1
+        :wait => 20
       }
 
       def initialize(options = {})
