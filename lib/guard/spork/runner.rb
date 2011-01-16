@@ -5,12 +5,15 @@ module Guard
     class Runner
       attr_accessor :options
 
+      DEFAULTS = {
+        :cucumber_port => 8990, 
+        :rspec_port => 8989,
+        :test_unit_port => 8988,
+        :wait => 1
+      }
+
       def initialize(options = {})
-        options[:wait]          ||= 20 # seconds
-        options[:rspec_port]    ||= 8989
-        options[:cucumber_port] ||= 8990
-        options[:test_unit_port] ||= 8988
-        @options = options
+        @options = DEFAULTS.merge(options)
       end
       
       def launch_sporks(action)
