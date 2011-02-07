@@ -39,7 +39,7 @@ Please read {Guard doc}[http://github.com/guard/guard#readme] for more info abou
       watch('config/environment.rb')
       watch(%r{^config/environments/.*\.rb$})
       watch(%r{^config/initializers/.*\.rb$})
-      watch('^spec/spec_helper.rb')
+      watch('spec/spec_helper.rb')
     end
 
 == Options
