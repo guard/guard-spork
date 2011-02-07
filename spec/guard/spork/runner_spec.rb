@@ -7,7 +7,7 @@ describe Guard::Spork::Runner do
 
   describe "#launch_sporks" do
     before(:each) do
-      subject.stub(:system) { true }
+      subject.stub(:spawn) { true }
       Dir.stub(:pwd) { "" }
     end
 
@@ -20,7 +20,7 @@ describe Guard::Spork::Runner do
       end
 
       it "should launch rspec spork server" do
-        subject.should_receive(:system).with("spork -p 8989 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:spawn).with("spork -p 8989")
         subject.launch_sporks("start")
       end
     end
@@ -34,7 +34,7 @@ describe Guard::Spork::Runner do
       end
 
       it "should launch cucumber spork server" do
-        subject.should_receive(:system).with("spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:spawn).with("spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
@@ -49,8 +49,8 @@ describe Guard::Spork::Runner do
       end
 
       it "should launch rspec & cucumber spork server" do
-        subject.should_receive(:system).with("spork -p 8989 >/dev/null 2>&1 < /dev/null &")
-        subject.should_receive(:system).with("spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:spawn).with("spork -p 8989")
+        subject.should_receive(:spawn).with("spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
@@ -65,8 +65,8 @@ describe Guard::Spork::Runner do
       end
 
       it "should launch rspec & cucumber spork server" do
-        subject.should_receive(:system).with("bundle exec spork -p 8989 >/dev/null 2>&1 < /dev/null &")
-        subject.should_receive(:system).with("bundle exec spork cu -p 8990 >/dev/null 2>&1 < /dev/null &")
+        subject.should_receive(:spawn).with("bundle exec spork -p 8989")
+        subject.should_receive(:spawn).with("bundle exec spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
@@ -86,5 +86,4 @@ private
   def socket_mock
     @socket_mock ||= mock(TCPSocket, :close => true)
   end
-
 end

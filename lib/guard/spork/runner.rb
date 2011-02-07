@@ -14,8 +14,8 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        system(spork_command("rspec")) if rspec?
-        system(spork_command("cucumber")) if cucumber?
+        spawn(spork_command("rspec")) if rspec?
+        spawn(spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
@@ -38,7 +38,6 @@ module Guard
           cmd_parts << "-p #{options[:cucumber_port]}"
         end
 
-        cmd_parts << ">/dev/null 2>&1 < /dev/null &"
         cmd_parts.join(" ")
       end
 
@@ -49,7 +48,6 @@ module Guard
             TCPSocket.new('localhost', options[:rspec_port]).close if rspec?
             TCPSocket.new('localhost', options[:cucumber_port]).close if cucumber?
           rescue Errno::ECONNREFUSED
-            print '.'
             next
           end
           UI.info "Spork for #{sporked_gems} successfully #{action}ed", :reset => true
