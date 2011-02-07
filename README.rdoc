@@ -35,11 +35,11 @@ Please read {Guard doc}[http://github.com/guard/guard#readme] for more info abou
 === Rails app
 
     guard 'spork' do
-      watch('^config/application.rb$')
-      watch('^config/environment.rb$')
-      watch('^config/environments/.*\.rb$')
-      watch('^config/initializers/.*\.rb$')
-      watch('^spec/spec_helper.rb')
+      watch(%r%^config/application.rb$%)
+      watch(%r%^config/environment.rb$%)
+      watch(%r%^config/environments/.*\.rb$%)
+      watch(%r%^config/initializers/.*\.rb$%)
+      watch(%r%^spec/spec_helper.rb%)
     end
 
 == Options
