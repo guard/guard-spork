@@ -42,6 +42,18 @@ Please read {Guard doc}[http://github.com/guard/guard#readme] for more info abou
       watch('spec/spec_helper.rb')
     end
 
+=== Running specs over Spork
+
+Pass the :drb => true option to {guard-rspec}[http://github.com/guard/guard-rspec] and/or {guard-cucumber}[http://github.com/guard/guard-cucumber] to run them over the Spork DRb server:
+
+    guard 'rspec', :drb => true do
+      ...
+    end
+
+    guard 'cucumber', :drb => true do
+      ...
+    end
+
 == Options
 
 Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can disable any of them with the corresponding options:
