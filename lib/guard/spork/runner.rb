@@ -1,4 +1,5 @@
 require 'socket'
+require 'sfl'
 
 module Guard
   class Spork
