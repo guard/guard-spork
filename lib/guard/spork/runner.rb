@@ -1,5 +1,4 @@
 require 'socket'
-require 'sfl'
 
 module Guard
   class Spork
@@ -15,8 +14,8 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn(spork_command("rspec")) if rspec?
-        spawn(spork_command("cucumber")) if cucumber?
+        spawn_child(spork_command("rspec")) if rspec?
+        spawn_child(spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
@@ -25,6 +24,23 @@ module Guard
       end
 
     private
+      def spawn_child(cmd)
+        pid = fork
+        raise "Fork failed." if pid == -1
+
+        unless pid
+          ignore_control_signals
+          exec(cmd)
+        end
+
+        pid
+      end
+
+      def ignore_control_signals
+        Signal.trap('QUIT', 'IGNORE')
+        Signal.trap('INT', 'IGNORE')
+        Signal.trap('TSTP', 'IGNORE')
+      end
 
       def spork_command(type)
         cmd_parts = []
