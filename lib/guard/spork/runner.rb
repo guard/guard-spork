@@ -10,6 +10,9 @@ module Guard
         options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
         @options = options
+        @children = {}
+
+        Signal.trap('CHLD', self.method(:reap_children))
       end
 
       def launch_sporks(action)
@@ -20,6 +23,7 @@ module Guard
       end
 
       def kill_sporks
+        UI.debug "Killing sporks #{spork_pids.join(', ')}"
         spork_pids.each { |pid| Process.kill("KILL", pid) }
       end
 
@@ -33,6 +37,8 @@ module Guard
           exec(cmd)
         end
 
+        UI.debug "Spawned spork #{pid} ('#{cmd}')"
+        @children[pid] = cmd
         pid
       end
 
@@ -40,6 +46,29 @@ module Guard
         Signal.trap('QUIT', 'IGNORE')
         Signal.trap('INT', 'IGNORE')
         Signal.trap('TSTP', 'IGNORE')
+      end
+
+      def reap_children(sig)
+        terminated_children.each do |stat|
+          pid = stat.pid
+          if cmd = @children.delete(pid)
+            UI.debug "Reaping spork #{pid}"
+          end
+        end
+      end
+
+      def terminated_children
+        stats = []
+        loop do
+          begin
+            pid, stat = Process.wait2(-1, Process::WNOHANG)
+            break if pid.nil?
+            stats << stat
+          rescue Errno::ECHILD
+            break
+          end
+        end
+        stats
       end
 
       def spork_command(type)
@@ -77,7 +106,7 @@ module Guard
       end
 
       def spork_pids
-        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        @children.keys
       end
 
       def sporked_gems
