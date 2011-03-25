@@ -75,7 +75,7 @@ describe Guard::Spork::Runner do
 
   describe "#kill_sporks" do
     it "should kill command" do
-      subject.should_receive(:spork_pids) { [999] }
+      subject.should_receive(:spork_pids).twice { [999] }
       Process.should_receive(:kill).with("KILL",999)
       subject.kill_sporks
     end
