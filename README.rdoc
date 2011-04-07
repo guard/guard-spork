@@ -1,13 +1,13 @@
 = Guard::Spork
 
-Spork guard allows to automatically & intelligently start/reload your RSpec/Cucumber {Spork}[https://github.com/timcharper/spork] server(s).
+Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber {Spork}[https://github.com/timcharper/spork] server(s).
 
-- Compatible with Spork 0.8.4 & 0.9.0.rc3
+- Compatible with Spork 0.8.4 & 0.9.0.rc3.
 - Tested on Ruby 1.8.6, 1.8.7 & 1.9.2.
 
 == Install
 
-Please be sure to have {Guard}[http://github.com/guard/guard] installed before continue.
+Please be sure to have {Guard}[https://github.com/guard/guard] installed before continue.
 
 Install the gem:
 
@@ -23,14 +23,13 @@ Add guard definition to your Guardfile with:
 
 == Usage
 
-Please read {Guard usage doc}[http://github.com/guard/guard#readme]
+Please read {Guard usage doc}[https://github.com/guard/guard#readme].
 
 == Guardfile
 
-Spork guard can be really be adapated to all kind of projects.
-Please read {Guard doc}[http://github.com/guard/guard#readme] for more info about Guardfile DSL.
+Please read {Guard doc}[https://github.com/guard/guard#readme] for more info about the Guardfile DSL.
 
-!!! IMPORTANT: place Spork guard before rspec/cucumber guards !!!
+<strong>IMPORTANT: place Spork guard before rspec/cucumber guards!</strong>
 
 === Rails app
 
@@ -44,7 +43,7 @@ Please read {Guard doc}[http://github.com/guard/guard#readme] for more info abou
 
 === Running specs over Spork
 
-Pass the <tt>:cli => "--drb"</tt> option to {guard-rspec}[http://github.com/guard/guard-rspec] and/or {guard-cucumber}[http://github.com/guard/guard-cucumber] to run them over the Spork DRb server:
+Pass the <tt>:cli => "--drb"</tt> option to {Guard::RSpec}[https://github.com/guard/guard-rspec] and/or {Guard::Cucumber}[https://github.com/guard/guard-cucumber] to run them over the Spork DRb server:
 
     guard 'rspec', :cli => "--drb" do
       ...
@@ -56,7 +55,7 @@ Pass the <tt>:cli => "--drb"</tt> option to {guard-rspec}[http://github.com/guar
 
 == Options
 
-Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can disable any of them with the corresponding options:
+Guard::Spork automatically detect RSpec/Cucumber/Bundler presence but you can disable any of them with the corresponding options:
 
     guard 'spork', :cucumber => false, :bundler => false do
       ...
@@ -64,29 +63,29 @@ Spork guard automatically detect RSpec/Cucumber/Bundler presence but you can dis
 
 Available options:
 
-    :wait => 30            # Seconds to wait server launch, default 20
+    :wait => 30            # Seconds to wait for the server to starts, default: 20
     :cucumber => false
     :rspec => false
-    :bundler => false      # don't use "bundle exec"
-    :rspec_port => xxxx    # default 8989
-    :cucumber_port => xxxx # default 8990
+    :bundler => false      # Don't use "bundle exec"
+    :rspec_port => 1234    # Default: 8989
+    :cucumber_port => 4321 # Default: 8990
 
 == Common troubleshooting
 
-If you can start Spork manually but get the following error message when using Spork guard:
+If you can start Spork manually but get the following error message when using Guard::Spork:
 
-    Starting Spork for RSpec ERROR: Could not start Spork for RSpec. Make sure you can use it manually first.
+    Starting Spork for RSpec ERROR: Could not start Spork for RSpec/Cucumber. Make sure you can use it manually first.
 
-Try to increase the value of the :wait option before any further investigation.
+Try to increase the value of the <tt>:wait</tt> option before any further investigation.
 
 == Development
 
-- Source hosted at {GitHub}[http://github.com/guard/guard-spork]
-- Report issues/Questions/Feature requests on {GitHub Issues}[http://github.com/guard/guard-spork/issues]
+- Source hosted at {GitHub}[https://github.com/guard/guard-spork]
+- Report issues/Questions/Feature requests on {GitHub Issues}[https://github.com/guard/guard-spork/issues]
 
 Pull requests are very welcome! Make sure your patches are well tested. Please create a topic branch for every separate change
 you make.
 
 == Authors
 
-{Thibaud Guillaume-Gentil}[http://github.com/thibaudgg]
+{Thibaud Guillaume-Gentil}[https://github.com/thibaudgg]
