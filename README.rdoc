@@ -29,7 +29,7 @@ Please read {Guard usage doc}[https://github.com/guard/guard#readme].
 
 Please read {Guard doc}[https://github.com/guard/guard#readme] for more info about the Guardfile DSL.
 
-<strong>IMPORTANT: place Spork guard before rspec/cucumber guards!</strong>
+*IMPORTANT: place Spork guard before rspec/cucumber guards!*
 
 === Rails app
 
