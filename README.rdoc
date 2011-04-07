@@ -44,13 +44,13 @@ Please read {Guard doc}[http://github.com/guard/guard#readme] for more info abou
 
 === Running specs over Spork
 
-Pass the :drb => true option to {guard-rspec}[http://github.com/guard/guard-rspec] and/or {guard-cucumber}[http://github.com/guard/guard-cucumber] to run them over the Spork DRb server:
+Pass the <tt>:cli => "--drb"</tt> option to {guard-rspec}[http://github.com/guard/guard-rspec] and/or {guard-cucumber}[http://github.com/guard/guard-cucumber] to run them over the Spork DRb server:
 
-    guard 'rspec', :drb => true do
+    guard 'rspec', :cli => "--drb" do
       ...
     end
 
-    guard 'cucumber', :drb => true do
+    guard 'cucumber', :cli => "--drb" do
       ...
     end
 
