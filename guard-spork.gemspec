@@ -11,17 +11,17 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://rubygems.org/gems/guard-spork'
   s.summary     = 'Guard gem for Spork'
   s.description = 'Guard::Spork automatically manage Spork DRb servers'
-  
+
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project         = 'guard-spork'
-  
+
   s.add_dependency 'guard',   '>= 0.2.2'
   s.add_dependency 'spork',   '>= 0.8.4'
-  
-  s.add_development_dependency 'bundler',     '~> 1.0.7'
-  s.add_development_dependency 'rspec',       '~> 2.2.0'
-  s.add_development_dependency 'guard-rspec', '~> 0.1.9'
-  
+
+  s.add_development_dependency 'bundler',     '~> 1.0.12'
+  s.add_development_dependency 'rspec',       '~> 2.5.0'
+  s.add_development_dependency 'guard-rspec', '~> 0.2.0'
+
   s.files        = Dir.glob('{lib}/**/*') + %w[LICENSE README.rdoc]
   s.require_path = 'lib'
 end
