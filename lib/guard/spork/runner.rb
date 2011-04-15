@@ -12,20 +12,66 @@ module Guard
         options[:rspec_rails_env]    ||= 'test'
         options[:cucumber_rails_env] ||= options[:rspec_rails_env]
         @options = options
+        @children = {}
+
+        Signal.trap('CHLD', self.method(:reap_children))
       end
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn({"RAILS_ENV"=>options[:rspec_rails_env]}, spork_command("rspec")) if rspec?
-        spawn({"RAILS_ENV"=>options[:cucumber_rails_env]}, spork_command("cucumber")) if cucumber?
+        spawn_child({"RAILS_ENV"=>options[:rspec_rails_env]}, spork_command("rspec")) if rspec?
+        spawn_child({"RAILS_ENV"=>options[:cucumber_rails_env]}, spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
       def kill_sporks
+        UI.debug "Killing sporks #{spork_pids.join(', ')}"
         spork_pids.each { |pid| Process.kill("KILL", pid) }
       end
 
     private
+      def spawn_child(cmd)
+        pid = fork
+        raise "Fork failed." if pid == -1
+
+        unless pid
+          ignore_control_signals
+          exec(cmd)
+        end
+
+        UI.debug "Spawned spork #{pid} ('#{cmd}')"
+        @children[pid] = cmd
+        pid
+      end
+
+      def ignore_control_signals
+        Signal.trap('QUIT', 'IGNORE')
+        Signal.trap('INT', 'IGNORE')
+        Signal.trap('TSTP', 'IGNORE')
+      end
+
+      def reap_children(sig)
+        terminated_children.each do |stat|
+          pid = stat.pid
+          if cmd = @children.delete(pid)
+            UI.debug "Reaping spork #{pid}"
+          end
+        end
+      end
+
+      def terminated_children
+        stats = []
+        loop do
+          begin
+            pid, stat = Process.wait2(-1, Process::WNOHANG)
+            break if pid.nil?
+            stats << stat
+          rescue Errno::ECHILD
+            break
+          end
+        end
+        stats
+      end
 
       def spork_command(type)
         cmd_parts = []   
@@ -62,7 +108,7 @@ module Guard
       end
 
       def spork_pids
-        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        @children.keys
       end
 
       def sporked_gems
