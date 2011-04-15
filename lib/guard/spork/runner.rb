@@ -9,13 +9,15 @@ module Guard
         options[:wait]          ||= 20 # seconds
         options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
+        options[:rspec_rails_env]    ||= 'test'
+        options[:cucumber_rails_env] ||= options[:rspec_rails_env]
         @options = options
       end
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn(spork_command("rspec")) if rspec?
-        spawn(spork_command("cucumber")) if cucumber?
+        spawn({"RAILS_ENV"=>options[:rspec_rails_env]}, spork_command("rspec")) if rspec?
+        spawn({"RAILS_ENV"=>options[:cucumber_rails_env]}, spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
@@ -26,12 +28,12 @@ module Guard
     private
 
       def spork_command(type)
-        cmd_parts = []
+        cmd_parts = []   
         cmd_parts << "bundle exec" if bundler?
         cmd_parts << "spork"
 
         case type
-        when "rspec"
+        when "rspec"   
           cmd_parts << "-p #{options[:rspec_port]}"
         when "cucumber"
           cmd_parts << "cu"
