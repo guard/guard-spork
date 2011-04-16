@@ -19,8 +19,8 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn_child(sprok_env("rspec"),spork_command("rspec")) if rspec?
-        spawn_child(sprok_env("cucumber"),spork_command("cucumber")) if cucumber?
+        spawn_child(spork_env("rspec"),spork_command("rspec")) if rspec?
+        spawn_child(spork_env("cucumber"),spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
@@ -77,29 +77,30 @@ module Guard
         stats
       end
       
-      def sprok_env(type)
+      def spork_env(type)
         case type
-          when "rspec"   
-            options[:rspec_env]
-          when "cucumber"
-            options[:cucumber_env]
+        when "rspec"   
+          options[:rspec_env]
+        when "cucumber"
+          options[:cucumber_env]
         end
       end
       
       def spork_command(type)
+
         cmd_parts = []   
-
         cmd_parts << "bundle exec" if bundler?
-
         cmd_parts << "spork"
 
-        case type
-          when "rspec"   
-            cmd_parts << "-p #{options[:rspec_port]}"
-          when "cucumber"
-            cmd_parts << "cu"
-            cmd_parts << "-p #{options[:cucumber_port]}"
+        case type  
+          
+        when "rspec"   
+          cmd_parts << "-p #{options[:rspec_port]}"
+        when "cucumber"
+          cmd_parts << "cu"
+          cmd_parts << "-p #{options[:cucumber_port]}"
         end
+        
         cmd_parts.join(" ")
       end
 
