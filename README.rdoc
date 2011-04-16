@@ -61,6 +61,12 @@ Guard::Spork automatically detect RSpec/Cucumber/Bundler presence but you can di
       ...
     end
 
+To append additional environment variables for rspec and cucumber you can provided a hash to rspec_env/cucumber_env:
+
+  guard 'spork', :cucumber_env => {'RAILS_ENV' => 'cucumber'}, :rspec_env => {'RAILS_ENV' => 'test'} do
+    ...
+  end
+  
 Available options:
 
     :wait => 30            # Seconds to wait for the server to starts, default: 20
@@ -69,6 +75,8 @@ Available options:
     :bundler => false      # Don't use "bundle exec"
     :rspec_port => 1234    # Default: 8989
     :cucumber_port => 4321 # Default: 8990
+    :rspec_env
+    :cucumber_env
 
 == Common troubleshooting
 
