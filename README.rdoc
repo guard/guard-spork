@@ -1,4 +1,5 @@
 = Guard::Spork
+http://travis-ci.org/guard/guard-spork.png
 
 Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber {Spork}[https://github.com/timcharper/spork] server(s).
 
