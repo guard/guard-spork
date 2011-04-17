@@ -37,15 +37,10 @@ module Guard
 
         unless pid
           ignore_control_signals
-          if env
-            if RUBY_VERSION > "1.9"
-              exec(env, cmd)
-            else
-              env.each { |key, value| ENV[key] = value }
-              exec(cmd)
-            end
+          if RUBY_VERSION > "1.9"
+            exec(env, cmd)
           else
-            exec(cmd)
+            swap_env(env || []) { exec(cmd) }
           end
         end
 
@@ -58,6 +53,20 @@ module Guard
         Signal.trap('QUIT', 'IGNORE')
         Signal.trap('INT', 'IGNORE')
         Signal.trap('TSTP', 'IGNORE')
+      end
+
+      def swap_env(env)
+        old_env = {}
+        env.each do |key, value|
+          old_env[key] = ENV[key]
+          ENV[key]     = value
+        end
+
+        yield
+
+        env.each do |key, value|
+          ENV[key] = old_env[key]
+        end
       end
 
       def reap_children(sig)

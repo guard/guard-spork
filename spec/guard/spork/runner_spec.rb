@@ -4,11 +4,11 @@ describe Guard::Spork::Runner do
   subject { Guard::Spork::Runner.new }
 
   describe "#initialize" do
-    it "default options are { :cucumber_port => 8990, :rspec_port => 8989, :wait => 20, :rspec_env => nil, :cucumber_env => nil }" do
+    it "default options are { :wait => 20, :cucumber_port => 8990, :rspec_port => 8989, :rspec_env => nil, :cucumber_env => nil }" do
       subject.options.should == {
+        :wait => 20,
         :cucumber_port => 8990,
         :rspec_port => 8989,
-        :wait => 20,
         :rspec_env => nil,
         :cucumber_env => nil
       }
@@ -17,7 +17,6 @@ describe Guard::Spork::Runner do
 
   describe "#launch_sporks" do
     before(:each) do
-      subject.stub(:spawn_child) { true }
       Dir.stub(:pwd) { "" }
     end
 
@@ -83,9 +82,14 @@ describe Guard::Spork::Runner do
 
     describe ":rspec_env & :cucumber_env options" do
       before(:each) do
-       subject.options = {:cucumber_port => 8990, :rspec_port => 8989, :wait => 1, :cucumber_env => {'RAILS_ENV' => 'cucumber'}, :rspec_env => {'RAILS_ENV' => 'test'}}
-       subject.stub(:spawn_child) { true }
-       Dir.stub(:pwd) { "" }
+        subject.options = {
+          :wait => 20,
+          :cucumber_port => 8990,
+          :rspec_port => 8989,
+          :rspec_env => { 'RAILS_ENV' => 'test' },
+          :cucumber_env => { 'RAILS_ENV' => 'cucumber' }
+        }
+        Dir.stub(:pwd) { "" }
       end
 
       context "with RSpec only" do
@@ -148,6 +152,18 @@ describe Guard::Spork::Runner do
         end
       end
 
+    end
+  end
+
+  describe "#swap_env" do
+    before(:each) do
+      ENV['FOO_ENV'] = 'foo'
+    end
+
+    it "doesn't change current ENV" do
+      ENV['FOO_ENV'].should == 'foo'
+      subject.send(:swap_env, { 'FOO_ENV' => 'test' }) { "Foo" }
+      ENV['FOO_ENV'].should == 'foo'
     end
   end
 
