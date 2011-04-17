@@ -37,7 +37,12 @@ module Guard
         unless pid
           ignore_control_signals
           if env
-            exec(env,cmd) 
+            if RUBY_VERSION > "1.9"
+              exec(env,cmd) 
+            else
+              env.each {|key, value| ENV[key]=value }
+              exec(cmd) 
+            end
           else
             exec(cmd)
           end

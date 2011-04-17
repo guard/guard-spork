@@ -67,6 +67,8 @@ To append additional environment variables for rspec and cucumber you can provid
     ...
   end
   
+<b>IMPORTANT: when using ruby 1.8.x please set the env for both rspec and cucumber as they will overwrite each other and the system env's</b>  
+  
 Available options:
 
     :wait => 30            # Seconds to wait for the server to starts, default: 20
