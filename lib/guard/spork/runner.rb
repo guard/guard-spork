@@ -5,13 +5,13 @@ module Guard
     class Runner
       attr_accessor :options
 
-      def initialize(options = {})
+      def initialize(options={})
         options[:wait]          ||= 20 # seconds
         options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
-        options[:rspec_env]
-        options[:cucumber_env]
-        @options = options
+        options[:rspec_env]     ||= nil
+        options[:cucumber_env]  ||= nil
+        @options  = options
         @children = {}
 
         Signal.trap('CHLD', self.method(:reap_children))
@@ -19,18 +19,19 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn_child(spork_env("rspec"),spork_command("rspec")) if rspec?
-        spawn_child(spork_env("cucumber"),spork_command("cucumber")) if cucumber?
+        spawn_child(options[:rspec_env], spork_command("rspec")) if rspec?
+        spawn_child(options[:cucumber_env], spork_command("cucumber")) if cucumber?
         verify_launches(action)
       end
 
       def kill_sporks
-        UI.debug "Killing sporks #{spork_pids.join(', ')}"
+        UI.debug "Killing Spork servers with PID: #{spork_pids.join(', ')}"
         spork_pids.each { |pid| Process.kill("KILL", pid) }
       end
 
     private
-      def spawn_child(env,cmd)
+
+      def spawn_child(env, cmd)
         pid = fork
         raise "Fork failed." if pid == -1
 
@@ -38,17 +39,17 @@ module Guard
           ignore_control_signals
           if env
             if RUBY_VERSION > "1.9"
-              exec(env,cmd) 
+              exec(env, cmd)
             else
-              env.each {|key, value| ENV[key]=value }
-              exec(cmd) 
+              env.each { |key, value| ENV[key] = value }
+              exec(cmd)
             end
           else
             exec(cmd)
           end
         end
 
-        UI.debug "Spawned spork #{pid} ('#{cmd}')"
+        UI.debug "Spawned Spork server #{pid} ('#{cmd}')"
         @children[pid] = cmd
         pid
       end
@@ -81,31 +82,19 @@ module Guard
         end
         stats
       end
-      
-      def spork_env(type)
-        case type
-        when "rspec"   
-          options[:rspec_env]
-        when "cucumber"
-          options[:cucumber_env]
-        end
-      end
-      
-      def spork_command(type)
 
-        cmd_parts = []   
+      def spork_command(type)
+        cmd_parts = []
         cmd_parts << "bundle exec" if bundler?
         cmd_parts << "spork"
 
-        case type  
-          
-        when "rspec"   
+        case type
+        when "rspec"
           cmd_parts << "-p #{options[:rspec_port]}"
         when "cucumber"
-          cmd_parts << "cu"
-          cmd_parts << "-p #{options[:cucumber_port]}"
+          cmd_parts << "cu -p #{options[:cucumber_port]}"
         end
-        
+
         cmd_parts.join(" ")
       end
 
@@ -118,12 +107,12 @@ module Guard
           rescue Errno::ECONNREFUSED
             next
           end
-          UI.info "Spork for #{sporked_gems} successfully #{action}ed", :reset => true
+          UI.info "Spork server for #{sporked_gems} successfully #{action}ed", :reset => true
           Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success
           return true
         end
         UI.reset_line # workaround before Guard::UI update
-        UI.error "Could not #{action} Spork for #{sporked_gems}. Make sure you can use it manually first."
+        UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
       end
 

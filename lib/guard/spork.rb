@@ -7,10 +7,9 @@ module Guard
     autoload :Runner, 'guard/spork/runner'
     attr_accessor :runner
 
-    def initialize(watchers = [], options = {})
+    def initialize(watchers=[], options={})
       super
       @runner = Runner.new(options)
-
     end
 
     def start
