@@ -9,8 +9,8 @@ module Guard
         options[:wait]          ||= 20 # seconds
         options[:rspec_port]    ||= 8989
         options[:cucumber_port] ||= 8990
-        options[:rspec_env]     ||= nil
-        options[:cucumber_env]  ||= nil
+        options[:rspec_env]     ||= {}
+        options[:cucumber_env]  ||= {}
         @options  = options
         @children = {}
 
@@ -40,7 +40,7 @@ module Guard
           if RUBY_VERSION > "1.9"
             exec(env, cmd)
           else
-            swap_env(env || []) { exec(cmd) }
+            swap_env(env) { exec(cmd) }
           end
         end
 

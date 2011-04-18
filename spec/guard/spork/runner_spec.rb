@@ -9,8 +9,8 @@ describe Guard::Spork::Runner do
         :wait => 20,
         :cucumber_port => 8990,
         :rspec_port => 8989,
-        :rspec_env => nil,
-        :cucumber_env => nil
+        :rspec_env => {},
+        :cucumber_env => {}
       }
     end
   end
@@ -29,7 +29,7 @@ describe Guard::Spork::Runner do
       end
 
       it "launches Spork server for RSpec" do
-        subject.should_receive(:spawn_child).with(nil, "spork -p 8989")
+        subject.should_receive(:spawn_child).with({}, "spork -p 8989")
         subject.launch_sporks("start")
       end
     end
@@ -43,7 +43,7 @@ describe Guard::Spork::Runner do
       end
 
       it "launches Spork server for Cucumber" do
-        subject.should_receive(:spawn_child).with(nil, "spork cu -p 8990")
+        subject.should_receive(:spawn_child).with({}, "spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
@@ -58,8 +58,8 @@ describe Guard::Spork::Runner do
       end
 
       it "launches Spork servers for RSpec & Cucumber" do
-        subject.should_receive(:spawn_child).with(nil, "spork -p 8989")
-        subject.should_receive(:spawn_child).with(nil, "spork cu -p 8990")
+        subject.should_receive(:spawn_child).with({}, "spork -p 8989")
+        subject.should_receive(:spawn_child).with({}, "spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
@@ -74,8 +74,8 @@ describe Guard::Spork::Runner do
       end
 
       it "launches Spork servers for RSpec & Cucumber with 'bundle exec'" do
-        subject.should_receive(:spawn_child).with(nil, "bundle exec spork -p 8989")
-        subject.should_receive(:spawn_child).with(nil, "bundle exec spork cu -p 8990")
+        subject.should_receive(:spawn_child).with({}, "bundle exec spork -p 8989")
+        subject.should_receive(:spawn_child).with({}, "bundle exec spork cu -p 8990")
         subject.launch_sporks("start")
       end
     end
