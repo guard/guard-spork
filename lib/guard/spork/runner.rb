@@ -6,11 +6,13 @@ module Guard
       attr_accessor :options
 
       def initialize(options={})
-        options[:wait]          ||= 20 # seconds
-        options[:rspec_port]    ||= 8989
-        options[:cucumber_port] ||= 8990
-        options[:rspec_env]     ||= {}
-        options[:cucumber_env]  ||= {}
+        options[:wait]           ||= 20 # seconds
+        options[:test_unit_port] ||= 8988
+        options[:rspec_port]     ||= 8989
+        options[:cucumber_port]  ||= 8990
+        options[:test_unit_env]  ||= {}
+        options[:rspec_env]      ||= {}
+        options[:cucumber_env]   ||= {}
         @options  = options
         @children = {}
 
@@ -19,6 +21,7 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
+        spawn_child(options[:test_unit_env], spork_command("test_unit")) if test_unit?
         spawn_child(options[:rspec_env], spork_command("rspec")) if rspec?
         spawn_child(options[:cucumber_env], spork_command("cucumber")) if cucumber?
         verify_launches(action)
@@ -98,6 +101,8 @@ module Guard
         cmd_parts << "spork"
 
         case type
+        when "test_unit"
+          cmd_parts << "testunit -p #{options[:test_unit_port]}"
         when "rspec"
           cmd_parts << "-p #{options[:rspec_port]}"
         when "cucumber"
@@ -111,6 +116,7 @@ module Guard
         options[:wait].times do
           sleep 1
           begin
+            TCPSocket.new('localhost', options[:test_unit_port]).close if test_unit?
             TCPSocket.new('localhost', options[:rspec_port]).close if rspec?
             TCPSocket.new('localhost', options[:cucumber_port]).close if cucumber?
           rescue Errno::ECONNREFUSED
@@ -131,6 +137,7 @@ module Guard
 
       def sporked_gems
         gems = []
+        gems << "Test::Unit" if test_unit?
         gems << "RSpec" if rspec?
         gems << "Cucumber" if cucumber?
         gems.join(' & ')
@@ -138,6 +145,10 @@ module Guard
 
       def bundler?
         @bundler ||= File.exist?("#{Dir.pwd}/Gemfile") && options[:bundler] != false
+      end
+
+      def test_unit?
+        @test_unit ||= File.exist?("#{Dir.pwd}/test/test_helper.rb") && options[:test_unit] != false
       end
 
       def rspec?
