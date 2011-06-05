@@ -21,7 +21,7 @@ module Guard
 
       def launch_sporks(action)
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
-        spawn_child(options[:test_unit_env], spork_command("testunit")) if test_unit?
+        spawn_child(options[:test_unit_env], spork_command("test_unit")) if test_unit?
         spawn_child(options[:rspec_env], spork_command("rspec")) if rspec?
         spawn_child(options[:cucumber_env], spork_command("cucumber")) if cucumber?
         verify_launches(action)
