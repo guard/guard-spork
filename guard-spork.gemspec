@@ -20,8 +20,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'spork', '>= 0.8.4'
 
   s.add_development_dependency 'bundler',     '~> 1.0'
-  s.add_development_dependency 'rspec',       '~> 2.5'
-  s.add_development_dependency 'guard-rspec', '~> 0.2'
+  s.add_development_dependency 'rspec',       '~> 2.6'
+  s.add_development_dependency 'guard-rspec', '~> 0.4'
 
   s.files        = Dir.glob('{lib}/**/*') + %w[LICENSE README.rdoc]
   s.require_path = 'lib'
