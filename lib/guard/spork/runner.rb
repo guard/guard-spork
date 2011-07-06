@@ -29,7 +29,7 @@ module Guard
 
       def kill_sporks
         UI.debug "Killing Spork servers with PID: #{spork_pids.join(', ')}"
-        spork_pids.each { |pid| Process.kill("KILL", pid) }
+        spork_pids.each { |pid| ::Process.kill("KILL", pid) }
       end
 
     private
@@ -85,7 +85,7 @@ module Guard
         stats = []
         loop do
           begin
-            pid, stat = Process.wait2(-1, Process::WNOHANG)
+            pid, stat = ::Process.wait2(-1, ::Process::WNOHANG)
             break if pid.nil?
             stats << stat
           rescue Errno::ECHILD
