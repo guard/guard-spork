@@ -132,7 +132,11 @@ module Guard
       end
 
       def spork_pids
-        @children.keys
+        if @children.empty?
+          `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        else
+          @children.keys
+        end
       end
 
       def sporked_gems
