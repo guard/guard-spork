@@ -39,7 +39,10 @@ Please read {Guard doc}[https://github.com/guard/guard#readme] for more info abo
       watch('config/environment.rb')
       watch(%r{^config/environments/.*\.rb$})
       watch(%r{^config/initializers/.*\.rb$})
+      watch('Gemfile')
+      watch('Gemfile.lock')
       watch('spec/spec_helper.rb')
+      watch('test/test_helper.rb')
     end
 
 === Running specs over Spork
@@ -51,6 +54,12 @@ Pass the <tt>:cli => "--drb"</tt> option to {Guard::RSpec}[https://github.com/gu
     end
 
     guard 'cucumber', :cli => "--drb" do
+      ...
+    end
+
+For MiniTest Guard you should pass the `:drb => true` option:
+
+    guard 'minitest', :drb => true do
       ...
     end
 
