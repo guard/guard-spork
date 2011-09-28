@@ -57,6 +57,12 @@ Pass the <tt>:cli => "--drb"</tt> option to {Guard::RSpec}[https://github.com/gu
       ...
     end
 
+For MiniTest Guard you should pass the `:drb => true` option:
+
+    guard 'minitest', :drb => true do
+      ...
+    end
+
 == Options
 
 Guard::Spork automatically detect RSpec/Cucumber/Test::Unit/Bundler presence but you can disable any of them with the corresponding options:
