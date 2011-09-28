@@ -42,6 +42,7 @@ Please read {Guard doc}[https://github.com/guard/guard#readme] for more info abo
       watch('Gemfile')
       watch('Gemfile.lock')
       watch('spec/spec_helper.rb')
+      watch('test/test_helper.rb')
     end
 
 === Running specs over Spork
