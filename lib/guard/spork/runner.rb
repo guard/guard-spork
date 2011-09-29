@@ -14,7 +14,7 @@ module Guard
         options[:rspec_env]      ||= {}
         options[:cucumber_env]   ||= {}
         @options  = options
-        @children = {}
+        ENV['SPORK_PIDS'] ||= ''
 
         Signal.trap('CHLD', self.method(:reap_children))
       end
@@ -48,7 +48,7 @@ module Guard
         end
 
         UI.debug "Spawned Spork server #{pid} ('#{cmd}')"
-        @children[pid] = cmd
+        add_children(pid)
         pid
       end
 
@@ -75,7 +75,7 @@ module Guard
       def reap_children(sig)
         terminated_children.each do |stat|
           pid = stat.pid
-          if cmd = @children.delete(pid)
+          if remove_children(pid)
             UI.debug "Reaping spork #{pid}"
           end
         end
@@ -131,12 +131,20 @@ module Guard
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
       end
 
+      def add_children(pid)
+        pids              = spork_pids << pid
+        ENV['SPORK_PIDS'] = pids.join(',')
+      end
+
+      def remove_children(pid)
+        pids              = spork_pids
+        deleted_pid       = pids.delete(pid)
+        ENV['SPORK_PIDS'] = pids.join(',')
+        deleted_pid
+      end
+
       def spork_pids
-        if @children.empty?
-          `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
-        else
-          @children.keys
-        end
+        ENV['SPORK_PIDS'].split(',').map { |pid| pid.to_i }
       end
 
       def sporked_gems
