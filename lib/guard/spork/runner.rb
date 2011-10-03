@@ -40,7 +40,6 @@ module Guard
         raise "Fork failed." if pid == -1
 
         unless pid
-          ignore_control_signals
           if RUBY_VERSION > "1.9"
             exec(env, cmd)
           else
