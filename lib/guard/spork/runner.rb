@@ -15,8 +15,6 @@ module Guard
         options[:cucumber_env]   ||= {}
         @options  = options
         ENV['SPORK_PIDS'] ||= ''
-
-        Signal.trap('CHLD', self.method(:reap_children))
       end
 
       def launch_sporks(action)
@@ -29,7 +27,10 @@ module Guard
 
       def kill_sporks
         UI.debug "Killing Spork servers with PID: #{spork_pids.join(', ')}"
-        spork_pids.each { |pid| ::Process.kill("KILL", pid) }
+        spork_pids.each do |pid|
+          ::Process.kill("KILL", pid)
+          remove_children(pid)
+        end
       end
 
     private
@@ -52,12 +53,6 @@ module Guard
         pid
       end
 
-      def ignore_control_signals
-        Signal.trap('QUIT', 'IGNORE')
-        Signal.trap('INT', 'IGNORE')
-        Signal.trap('TSTP', 'IGNORE')
-      end
-
       def swap_env(env)
         old_env = {}
         env.each do |key, value|
@@ -69,15 +64,6 @@ module Guard
 
         env.each do |key, value|
           ENV[key] = old_env[key]
-        end
-      end
-
-      def reap_children(sig)
-        terminated_children.each do |stat|
-          pid = stat.pid
-          if remove_children(pid)
-            UI.debug "Reaping spork #{pid}"
-          end
         end
       end
 

@@ -215,11 +215,13 @@ describe Guard::Spork::Runner do
 
   describe "#kill_sporks" do
     it "calls a KILL command for each Spork server" do
-      subject.should_receive(:spork_pids).twice.and_return([666, 999])
+      ENV['SPORK_PIDS'] = "666, 999"
       Guard::UI.should_receive(:debug).with("Killing Spork servers with PID: 666, 999")
       Process.should_receive(:kill).with("KILL", 666)
       Process.should_receive(:kill).with("KILL", 999)
       subject.kill_sporks
+      ENV['SPORK_PIDS'].should eql('')
+      ENV['SPORK_PIDS'] = nil
     end
   end
 
