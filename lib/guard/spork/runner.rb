@@ -114,6 +114,7 @@ module Guard
         UI.reset_line # workaround before Guard::UI update
         UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
+        throw :task_has_failed
       end
 
       def add_children(pid)
