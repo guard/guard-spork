@@ -8,11 +8,12 @@ module Guard
       def initialize(options={})
         options[:wait]           ||= 20 # seconds
         options[:test_unit_port] ||= 8988
-        options[:rspec_port]     ||= 8989
         options[:cucumber_port]  ||= 8990
-        options[:test_unit_env]  ||= {}
+        options[:rspec_port]     ||= 8989
         options[:rspec_env]      ||= {}
+        options[:test_unit_env]  ||= {}
         options[:cucumber_env]   ||= {}
+        options[:aggressive_kill]  = true unless options[:aggressive_kill] == false
         @options  = options
         ENV['SPORK_PIDS'] ||= ''
       end
@@ -130,7 +131,15 @@ module Guard
       end
 
       def spork_pids
-        ENV['SPORK_PIDS'].split(',').map { |pid| pid.to_i }
+        if ENV['SPORK_PIDS'] == '' && options[:aggressive_kill]
+          ps_spork_pids
+        else
+          ENV['SPORK_PIDS'].split(',').map { |pid| pid.to_i }
+        end
+      end
+
+      def ps_spork_pids
+        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
 
       def sporked_gems

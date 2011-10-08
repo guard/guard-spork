@@ -12,7 +12,8 @@ describe Guard::Spork::Runner do
         :test_unit_port => 8988,
         :test_unit_env => {},
         :rspec_env => {},
-        :cucumber_env => {}
+        :cucumber_env => {},
+        :aggressive_kill => true
       }
     end
   end
@@ -215,13 +216,24 @@ describe Guard::Spork::Runner do
 
   describe "#kill_sporks" do
     it "calls a KILL command for each Spork server" do
-      ENV['SPORK_PIDS'] = "666, 999"
-      Guard::UI.should_receive(:debug).with("Killing Spork servers with PID: 666, 999")
-      Process.should_receive(:kill).with("KILL", 666)
-      Process.should_receive(:kill).with("KILL", 999)
+      ENV['SPORK_PIDS'] = '666, 999'
+      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
+      Process.should_receive(:kill).with('KILL', 666)
+      Process.should_receive(:kill).with('KILL', 999)
       subject.kill_sporks
       ENV['SPORK_PIDS'].should eql('')
       ENV['SPORK_PIDS'] = nil
+    end
+
+    it "calls a KILL command for each Spork server getting from aggressive ps spork pids" do
+      ENV['SPORK_PIDS'] = ''
+      subject.should_receive(:ps_spork_pids).twice.and_return([666,999])
+      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
+      Process.should_receive(:kill).with('KILL', 666)
+      subject.should_receive(:remove_children).with(666)
+      Process.should_receive(:kill).with('KILL', 999)
+      subject.should_receive(:remove_children).with(999)
+      subject.kill_sporks
     end
   end
 
