@@ -104,6 +104,16 @@ Available options:
 :aggressive_kills => false                 # Default: true, will search Spork pids from `ps aux` and kill them all on start.
 ```
 
+## Debugger
+
+ruby-debug works in spork. Just add 
+
+```require 'ruby-debug`
+Debugger.start```
+
+at the top of your spec_helper.rb and/or env.rb files.
+
+
 ## Common troubleshooting
 
 If you can start Spork manually but get the following error message when using Guard::Spork:
