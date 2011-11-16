@@ -4,9 +4,9 @@ describe Guard::Spork::Runner do
   subject { Guard::Spork::Runner.new }
 
   describe "#initialize" do
-    it "default options are { :wait => 20, :cucumber_port => 8990, :rspec_port => 8989, :test_unit_port => 8988, :test_unit_env => nil, :rspec_env => nil, :cucumber_env => nil }" do
+    it "default options are { :wait => 30, :cucumber_port => 8990, :rspec_port => 8989, :test_unit_port => 8988, :test_unit_env => nil, :rspec_env => nil, :cucumber_env => nil }" do
       subject.options.should == {
-        :wait => 20,
+        :wait => 30,
         :cucumber_port => 8990,
         :rspec_port => 8989,
         :test_unit_port => 8988,

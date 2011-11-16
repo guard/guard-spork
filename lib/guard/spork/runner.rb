@@ -6,7 +6,7 @@ module Guard
       attr_accessor :options
 
       def initialize(options={})
-        options[:wait]           ||= 20 # seconds
+        options[:wait]           ||= 30 # seconds
         options[:test_unit_port] ||= 8988
         options[:cucumber_port]  ||= 8990
         options[:rspec_port]     ||= 8989
@@ -113,7 +113,7 @@ module Guard
           return true
         end
         UI.reset_line # workaround before Guard::UI update
-        UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
+        UI.error "Could not #{action} Spork server for #{sporked_gems}. Consider increasing :wait option beyond #{options[:wait]} seconds; if this doesn't help, sure you can use it manually first."
         Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
         throw :task_has_failed
       end
