@@ -99,7 +99,26 @@ module Guard
       end
 
       def verify_launches(action)
-        options[:wait].times do
+        start_time = Time.now
+        if wait_for_launch(options[:wait])
+          UI.info "Spork server for #{sporked_gems} successfully #{action}ed", :reset => true
+          Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success          
+        else
+          UI.reset_line # workaround before Guard::UI update
+          UI.error "Could not #{action} Spork server for #{sporked_gems}. Consider increasing :wait option beyond #{options[:wait]} seconds; if this doesn't help, sure you can use it manually first. I will continue waiting for a further 60 seconds."
+          Notifier.notify "#{sporked_gems} NOT #{action}ed. Continuing to wait for 60 seconds.", :title => "Spork", :image => :failed
+          if wait_for_launch(60)
+            total_time = Time.now - start_time
+            UI.info "Spork server for #{sporked_gems} eventually #{action}ed after #{total_time} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
+            Notifier.notify "#{sporked_gems} eventually #{action}ed after #{total_time} seconds", :title => "Spork", :image => :success
+          else 
+            throw :task_has_failed
+          end
+        end
+      end
+      
+      def wait_for_launch(wait)
+        wait.times do
           sleep 1
           begin
             TCPSocket.new('localhost', options[:test_unit_port]).close if test_unit?
@@ -108,14 +127,9 @@ module Guard
           rescue Errno::ECONNREFUSED
             next
           end
-          UI.info "Spork server for #{sporked_gems} successfully #{action}ed", :reset => true
-          Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success
-          return true
+          return true # Success
         end
-        UI.reset_line # workaround before Guard::UI update
-        UI.error "Could not #{action} Spork server for #{sporked_gems}. Consider increasing :wait option beyond #{options[:wait]} seconds; if this doesn't help, sure you can use it manually first."
-        Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
-        throw :task_has_failed
+        return false # Failure
       end
 
       def add_children(pid)
