@@ -110,7 +110,7 @@ module Guard
           if wait_for_launch(60)
             total_time = Time.now - start_time
             UI.info "Spork server for #{sporked_gems} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
-            Notifier.notify "#{sporked_gems} eventually #{action}ed after #{total_time} seconds", :title => "Spork", :image => :success
+            Notifier.notify "#{sporked_gems} eventually #{action}ed after #{total_time.to_i} seconds", :title => "Spork", :image => :success
           else 
             UI.reset_line # workaround before Guard::UI update
             UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
