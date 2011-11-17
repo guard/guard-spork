@@ -105,13 +105,16 @@ module Guard
           Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success          
         else
           UI.reset_line # workaround before Guard::UI update
-          UI.error "Could not #{action} Spork server for #{sporked_gems}. Consider increasing :wait option beyond #{options[:wait]} seconds; if this doesn't help, sure you can use it manually first. I will continue waiting for a further 60 seconds."
+          UI.error "Could not #{action} Spork server for #{sporked_gems} after #{options[:wait]} seconds. I will continue waiting for a further 60 seconds."
           Notifier.notify "#{sporked_gems} NOT #{action}ed. Continuing to wait for 60 seconds.", :title => "Spork", :image => :failed
           if wait_for_launch(60)
             total_time = Time.now - start_time
-            UI.info "Spork server for #{sporked_gems} eventually #{action}ed after #{total_time} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
+            UI.info "Spork server for #{sporked_gems} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
             Notifier.notify "#{sporked_gems} eventually #{action}ed after #{total_time} seconds", :title => "Spork", :image => :success
           else 
+            UI.reset_line # workaround before Guard::UI update
+            UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
+            Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
             throw :task_has_failed
           end
         end
