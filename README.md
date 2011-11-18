@@ -90,7 +90,7 @@ end
 Available options:
 
 ``` ruby
-:wait => 30                                # Seconds to wait for the server to starts, default: 20
+:wait => 60                                # Seconds to wait for the server to start, default: 30
 :cucumber => false
 :rspec => false
 :test_unit => false

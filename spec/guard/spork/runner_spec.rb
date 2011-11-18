@@ -4,9 +4,9 @@ describe Guard::Spork::Runner do
   subject { Guard::Spork::Runner.new }
 
   describe "#initialize" do
-    it "default options are { :wait => 20, :cucumber_port => 8990, :rspec_port => 8989, :test_unit_port => 8988, :test_unit_env => nil, :rspec_env => nil, :cucumber_env => nil }" do
+    it "default options are { :wait => 30, :cucumber_port => 8990, :rspec_port => 8989, :test_unit_port => 8988, :test_unit_env => nil, :rspec_env => nil, :cucumber_env => nil }" do
       subject.options.should == {
-        :wait => 20,
+        :wait => 30,
         :cucumber_port => 8990,
         :rspec_port => 8989,
         :test_unit_port => 8988,
@@ -16,6 +16,10 @@ describe Guard::Spork::Runner do
         :aggressive_kill => true
       }
     end
+  end
+  
+  before(:each) do
+    subject.stub(:sleep)
   end
 
   describe "#launch_sporks" do
@@ -196,6 +200,34 @@ describe Guard::Spork::Runner do
           subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork -p 8989")
           subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "bundle exec spork cu -p 8990")
           subject.launch_sporks("start")
+        end
+      end
+      
+      context "failed to start" do
+        before(:each) do
+          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
+          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
+          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
+          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(true)
+          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork testunit -p 8988")
+          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork -p 8989")
+          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "bundle exec spork cu -p 8990")
+        end
+        
+        context "fails on both attempts" do
+          it "waits first for configured time, then for an additional 60 seconds, then fails the task" do
+            subject.should_receive(:wait_for_launch).with(20).and_return(false)
+            subject.should_receive(:wait_for_launch).with(60).and_return(false)
+            lambda { subject.launch_sporks("start") }.should throw_symbol(:task_has_failed)
+          end
+        end
+        
+        context "succeeds in grace period" do
+          it "waits first for configured time, then for an additional 60 seconds, and succeeds" do
+            subject.should_receive(:wait_for_launch).with(20).and_return(false)
+            subject.should_receive(:wait_for_launch).with(60).and_return(true)
+            subject.launch_sporks("start")
+          end
         end
       end
 
