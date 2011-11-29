@@ -10,6 +10,19 @@ module Guard
         @options = options
       end
 
+      def to_s
+        case type
+        when :rspec
+          "RSpec"
+        when :cucumber
+          "Cucumber"
+        when :test_unit
+          "Test::Unit"
+        else
+          type.to_s
+        end
+      end
+
       def start
         @pid = fork do
           exec env, command

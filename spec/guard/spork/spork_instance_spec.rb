@@ -10,6 +10,7 @@ class Guard::Spork
 
       its(:command) { should == "spork -p 1337" }
       its(:port) { should == 1337 }
+      its(:to_s) { should == "RSpec" }
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
@@ -24,6 +25,7 @@ class Guard::Spork
 
       its(:command) { should == "spork cu -p 1337" }
       its(:port) { should == 1337 }
+      its(:to_s) { should == "Cucumber" }
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
@@ -38,6 +40,7 @@ class Guard::Spork
 
       its(:command) { should == "spork testunit -p 1337" }
       its(:port) { should == 1337 }
+      its(:to_s) { should == "Test::Unit" }
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
