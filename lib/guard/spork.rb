@@ -5,6 +5,7 @@ module Guard
   class Spork < Guard
 
     autoload :Runner, 'guard/spork/runner'
+    autoload :SporkInstance, 'guard/spork/spork_instance'
     attr_accessor :runner
 
     def initialize(watchers=[], options={})
