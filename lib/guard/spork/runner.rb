@@ -19,6 +19,7 @@ module Guard
       end
 
       def launch_sporks(action)
+        initialize_spork_instances
         UI.info "#{action.capitalize}ing Spork for #{sporked_gems} ", :reset => true
         spawn_child(options[:test_unit_env], spork_command(:test_unit)) if test_unit?
         spawn_child(options[:rspec_env], spork_command(:rspec)) if rspec?
@@ -35,6 +36,14 @@ module Guard
       end
 
     private
+      attr_reader :spork_instances
+
+      def initialize_spork_instances
+        @spork_instances = {}
+        [:rspec, :cucumber, :test_unit].each do |type|
+          spork_instances[type] = SporkInstance.new(type, options[:"#{type}_port"], options[:"#{type}_env"], :bundler => bundler?)
+        end
+      end
 
       def spawn_child(env, cmd)
         pid = fork
@@ -82,8 +91,7 @@ module Guard
       end
 
       def spork_command(type)
-        instance = SporkInstance.new(type, options[:"#{type}_port"], options[:"#{type}_env"], :bundler => bundler?)
-        instance.command
+        spork_instances[type].command
       end
 
       def verify_launches(action)
