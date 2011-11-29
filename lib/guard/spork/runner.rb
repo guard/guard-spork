@@ -102,7 +102,7 @@ module Guard
         start_time = Time.now
         if wait_for_launch(options[:wait])
           UI.info "Spork server for #{sporked_gems} successfully #{action}ed", :reset => true
-          Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success          
+          Notifier.notify "#{sporked_gems} successfully #{action}ed", :title => "Spork", :image => :success
         else
           UI.reset_line # workaround before Guard::UI update
           UI.error "Could not #{action} Spork server for #{sporked_gems} after #{options[:wait]} seconds. I will continue waiting for a further 60 seconds."
@@ -111,7 +111,7 @@ module Guard
             total_time = Time.now - start_time
             UI.info "Spork server for #{sporked_gems} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
             Notifier.notify "#{sporked_gems} eventually #{action}ed after #{total_time.to_i} seconds", :title => "Spork", :image => :success
-          else 
+          else
             UI.reset_line # workaround before Guard::UI update
             UI.error "Could not #{action} Spork server for #{sporked_gems}. Make sure you can use it manually first."
             Notifier.notify "#{sporked_gems} NOT #{action}ed", :title => "Spork", :image => :failed
@@ -119,7 +119,7 @@ module Guard
           end
         end
       end
-      
+
       def wait_for_launch(wait)
         wait.times do
           sleep 1
