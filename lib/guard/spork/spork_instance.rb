@@ -1,7 +1,7 @@
 module Guard
   class Spork
     class SporkInstance
-      attr_reader :env, :port, :pid
+      attr_reader :env, :port, :options, :pid
 
       def initialize(type, port, env, options)
         @type = type
@@ -58,7 +58,7 @@ module Guard
       end
 
       private
-        attr_reader :options, :type
+        attr_reader :type
 
         def use_bundler?
           options[:bundler]

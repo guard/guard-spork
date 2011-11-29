@@ -14,7 +14,7 @@ module Guard
     end
 
     def start
-      runner.kill_sporks
+      runner.kill_global_sporks
       runner.launch_sporks("start")
     end
 

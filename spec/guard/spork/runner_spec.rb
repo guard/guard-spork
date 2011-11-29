@@ -1,7 +1,8 @@
 require 'spec_helper'
+require 'timeout'
 
 describe Guard::Spork::Runner do
-  subject { Guard::Spork::Runner.new }
+  let(:runner) { Guard::Spork::Runner.new }
 
   describe "default options" do
     subject { Guard::Spork::Runner.new.options }
@@ -17,260 +18,264 @@ describe Guard::Spork::Runner do
   end
 
   before(:each) do
-    subject.stub(:sleep)
     Guard::Notifier.stub(:notify)
+    Guard::Spork::SporkInstance.any_instance.stub(:start)
+    Guard::UI.stub(:info)
+    Guard::UI.stub(:error)
+    Guard::UI.stub(:reset_line)
   end
 
-  describe "#launch_sporks" do
-    before(:each) do
-      Dir.stub(:pwd) { "" }
+  describe "(spork detection)" do
+    def file_existance(files)
+      File.stub(:exist?).and_raise { |name| "Unexpected file passed: #{name}" }
+      files.each_pair do |file, existance|
+        File.stub(:exist?).with(file).and_return(existance)
+      end
+    end
+
+    it "has a spork instance for :rspec when configured" do
+      runner = Guard::Spork::Runner.new({
+        :rspec => true,
+        :rspec_port => 2,
+        :rspec_env  => {'spec' => 'yes'},
+      })
+
+      runner.spork_instances[:rspec].tap do |instance|
+        instance.port.should == 2
+        instance.env.should == {'spec' => 'yes'}
+      end
+    end
+
+    it "has a spork instance for :cucumber when configured" do
+      runner = Guard::Spork::Runner.new({
+        :cucumber => true,
+        :cucumber_port => 2,
+        :cucumber_env  => {'cuke' => 'yes'},
+      })
+
+      runner.spork_instances[:cucumber].tap do |instance|
+        instance.port.should == 2
+        instance.env.should == {'cuke' => 'yes'}
+      end
+    end
+
+    it "has a spork instance for :test_unit when configured" do
+      runner = Guard::Spork::Runner.new({
+        :test_unit => true,
+        :test_unit_port => 2,
+        :test_unit_env  => {'unit' => 'yes'},
+      })
+
+      runner.spork_instances[:test_unit].tap do |instance|
+        instance.port.should == 2
+        instance.env.should == {'unit' => 'yes'}
+      end
     end
 
     context "with Test::Unit only" do
       before(:each) do
-        File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/features').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-        TCPSocket.should_receive(:new).with('localhost', 8988) { socket_mock }
+        file_existance({
+          'test/test_helper.rb' => true,
+          'spec'                => false,
+          'features'            => false,
+          'Gemfile'             => false,
+        })
       end
 
-      it "launches Spork server for Test::Unit" do
-        subject.should_receive(:spawn_child).with({}, "spork testunit -p 8988")
-        subject.launch_sporks("start")
+      it "has a spork instance for :test_unit" do
+        runner.spork_instances[:test_unit].should be_instance_of(Guard::Spork::SporkInstance)
+      end
+
+      it "does not have bundler enabled for the test_unit instance" do
+        runner.spork_instances[:test_unit].options.should include(:bundler => false)
+      end
+
+      it "does not have a spork instance for :rspec" do
+        runner.spork_instances[:rspec].should be_nil
+      end
+
+      it "does not have a spork instance for :cucumber" do
+        runner.spork_instances[:cucumber].should be_nil
       end
     end
 
     context "with RSpec only" do
       before(:each) do
-        File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/features').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-        TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
+        file_existance({
+          'test/test_helper.rb' => false,
+          'spec'                => true,
+          'features'            => false,
+          'Gemfile'             => false,
+        })
       end
 
-      it "launches Spork server for RSpec" do
-        subject.should_receive(:spawn_child).with({}, "spork -p 8989")
-        subject.launch_sporks("start")
+      it "has a spork instance for :rspec" do
+        runner.spork_instances[:rspec].should be_instance_of(Guard::Spork::SporkInstance)
+      end
+
+      it "does not have bundler enabled for the rspec instance" do
+        runner.spork_instances[:rspec].options.should include(:bundler => false)
+      end
+
+      it "does not have a spork instance for :test_unit" do
+        runner.spork_instances[:test_unit].should be_nil
+      end
+
+      it "does not have a spork instance for :cucumber" do
+        runner.spork_instances[:cucumber].should be_nil
       end
     end
 
     context "with Cucumber only" do
       before(:each) do
-        File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-        TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
+        file_existance({
+          'test/test_helper.rb' => false,
+          'spec'                => false,
+          'features'            => true,
+          'Gemfile'             => false,
+        })
       end
 
-      it "launches Spork server for Cucumber" do
-        subject.should_receive(:spawn_child).with({}, "spork cu -p 8990")
-        subject.launch_sporks("start")
-      end
-    end
-
-    context "with RSpec & Cucumber" do
-      before(:each) do
-        File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-        File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-        TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
-        TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
+      it "has a spork instance for :cucumber" do
+        runner.spork_instances[:cucumber].should be_instance_of(Guard::Spork::SporkInstance)
       end
 
-      it "launches Spork servers for RSpec & Cucumber" do
-        subject.should_receive(:spawn_child).with({}, "spork -p 8989")
-        subject.should_receive(:spawn_child).with({}, "spork cu -p 8990")
-        subject.launch_sporks("start")
+      it "does not have bundler enabled for the cucumber instance" do
+        runner.spork_instances[:cucumber].options.should include(:bundler => false)
+      end
+
+      it "does not have a spork instance for :test_unit" do
+        runner.spork_instances[:test_unit].should be_nil
+      end
+
+      it "does not have a spork instance for :rspec" do
+        runner.spork_instances[:rspec].should be_nil
       end
     end
 
-    context "with Test::Unit, RSpec, Cucumber & Bundler" do
+    context "with RSpec, Cucumber and Bundler" do
       before(:each) do
-        File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-        File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(true)
-        TCPSocket.should_receive(:new).with('localhost', 8988) { socket_mock }
-        TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
-        TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
+        file_existance({
+          'test/test_helper.rb' => false,
+          'spec'                => true,
+          'features'            => true,
+          'Gemfile'             => true,
+        })
       end
 
-      it "launches Spork servers for Test::Unit, RSpec & Cucumber with 'bundle exec'" do
-        subject.should_receive(:spawn_child).with({}, "bundle exec spork testunit -p 8988")
-        subject.should_receive(:spawn_child).with({}, "bundle exec spork -p 8989")
-        subject.should_receive(:spawn_child).with({}, "bundle exec spork cu -p 8990")
-        subject.launch_sporks("start")
-      end
-    end
-
-    describe ":test_unit_env & :rspec_env & :cucumber_env options" do
-      before(:each) do
-        subject.options = {
-          :wait => 20,
-          :cucumber_port => 8990,
-          :rspec_port => 8989,
-          :test_unit_port => 8988,
-          :test_unit_env => { 'RAILS_ENV' => 'test' },
-          :rspec_env => { 'RAILS_ENV' => 'test' },
-          :cucumber_env => { 'RAILS_ENV' => 'cucumber' }
-        }
-        Dir.stub(:pwd) { "" }
+      it "has a spork instance for :rspec" do
+        runner.spork_instances[:rspec].should be_instance_of(Guard::Spork::SporkInstance)
       end
 
-      context "with Test::Unit only" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-          TCPSocket.should_receive(:new).with('localhost', 8988) { socket_mock }
-        end
-
-        it "launches Spork server for Test::Unit" do
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "spork testunit -p 8988")
-          subject.launch_sporks("start")
-        end
+      it "has a spork instance for :cucumber" do
+        runner.spork_instances[:cucumber].should be_instance_of(Guard::Spork::SporkInstance)
       end
 
-      context "with RSpec only" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-          TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
-        end
-
-        it "launches Spork server for RSpec" do
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "spork -p 8989")
-          subject.launch_sporks("start")
-        end
+      it "has bundler enabled for the rspec instance" do
+        runner.spork_instances[:rspec].options.should include(:bundler => true)
       end
 
-      context "with Cucumber only" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-          TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
-        end
-
-        it "launches Spork server for Cucumber" do
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "spork cu -p 8990")
-          subject.launch_sporks("start")
-        end
+      it "has bundler enabled for the cucumber instance" do
+        runner.spork_instances[:cucumber].options.should include(:bundler => true)
       end
 
-      context "with RSpec & Cucumber" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(false)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(false)
-          TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
-          TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
-        end
-
-        it "launches Spork servers for RSpec & Cucumber" do
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "spork -p 8989")
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "spork cu -p 8990")
-          subject.launch_sporks("start")
-        end
+      it "does not have a spork instance for :test_unit" do
+        runner.spork_instances[:test_unit].should be_nil
       end
-
-      context "with Test::Unit, RSpec, Cucumber & Bundler" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(true)
-          TCPSocket.should_receive(:new).with('localhost', 8988) { socket_mock }
-          TCPSocket.should_receive(:new).with('localhost', 8989) { socket_mock }
-          TCPSocket.should_receive(:new).with('localhost', 8990) { socket_mock }
-        end
-
-        it "launches Spork servers for Test::Unit, RSpec & Cucumber with 'bundle exec'" do
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork testunit -p 8988")
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork -p 8989")
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "bundle exec spork cu -p 8990")
-          subject.launch_sporks("start")
-        end
-      end
-
-      context "failed to start" do
-        before(:each) do
-          File.should_receive(:exist?).any_number_of_times.with('/test/test_helper.rb').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/spec').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/features').and_return(true)
-          File.should_receive(:exist?).any_number_of_times.with('/Gemfile').and_return(true)
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork testunit -p 8988")
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'test' }, "bundle exec spork -p 8989")
-          subject.should_receive(:spawn_child).with({ 'RAILS_ENV' => 'cucumber' }, "bundle exec spork cu -p 8990")
-        end
-
-        context "fails on both attempts" do
-          it "waits first for configured time, then for an additional 60 seconds, then fails the task" do
-            subject.should_receive(:wait_for_launch).with(20).and_return(false)
-            subject.should_receive(:wait_for_launch).with(60).and_return(false)
-            lambda { subject.launch_sporks("start") }.should throw_symbol(:task_has_failed)
-          end
-        end
-
-        context "succeeds in grace period" do
-          it "waits first for configured time, then for an additional 60 seconds, and succeeds" do
-            subject.should_receive(:wait_for_launch).with(20).and_return(false)
-            subject.should_receive(:wait_for_launch).with(60).and_return(true)
-            subject.launch_sporks("start")
-          end
-        end
-      end
-
     end
   end
 
-  describe "#swap_env" do
-    before(:each) do
-      ENV['FOO_ENV'] = 'foo'
+  describe "#launch_sporks(action)" do
+    let(:rspec_instance) { fake_instance }
+
+    def fake_instance
+      double("fake instance", :start => nil, :running? => true)
     end
 
-    it "doesn't change current ENV" do
-      ENV['FOO_ENV'].should == 'foo'
-      subject.send(:swap_env, { 'FOO_ENV' => 'test' }) { "Foo" }
-      ENV['FOO_ENV'].should == 'foo'
+    around(:each) do |example|
+      Timeout.timeout(2) { example.run }
+    end
+
+    before(:each) do
+      runner.stub(:spork_instances => {:rspec => rspec_instance})
+      runner.stub(:sleep)
+    end
+
+    it "outputs an info message" do
+      runner.stub(:spork_instances => {"a" => fake_instance, "b" => fake_instance, "c" => fake_instance})
+      Guard::UI.should_receive(:info).with("Kissing Spork for a, b, c", :reset => true)
+      runner.launch_sporks("kiss")
+    end
+
+    it "starts all spork instances" do
+      rspec_instance.should_receive(:start)
+      runner.launch_sporks("")
+    end
+
+    it "waits for the spork instances to start" do
+      rspec_instance.should_receive(:running?).and_return(false, false, false, true)
+      runner.should_receive(:sleep).with(1).exactly(4).times
+
+      runner.launch_sporks("")
+    end
+
+    # This behavior is a bit weird, isn't it?
+    it "does not wait longer than the configured wait duration + 60" do
+      runner.options[:wait] = 7
+      runner.should_receive(:sleep).with(1).exactly(67).times
+      rspec_instance.stub(:running? => false)
+
+      expect {
+        runner.launch_sporks("")
+      }.to throw_symbol(:task_has_failed)
     end
   end
 
   describe "#kill_sporks" do
-    it "calls a KILL command for each Spork server" do
-      ENV['SPORK_PIDS'] = '666, 999'
-      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
-      Process.should_receive(:kill).with('KILL', 666)
-      Process.should_receive(:kill).with('KILL', 999)
-      subject.kill_sporks
-      ENV['SPORK_PIDS'].should eql('')
-      ENV['SPORK_PIDS'] = nil
-    end
+    it "kills all alive spork instances" do
+      alive = double("alive instance", :alive? => true, :pid => 111)
+      dead = double("dead instance", :alive? => false, :pid => 222)
+      runner.stub(:spork_instances => [alive, dead])
 
-    it "calls a KILL command for each Spork server getting from aggressive ps spork pids" do
-      ENV['SPORK_PIDS'] = ''
-      subject.should_receive(:ps_spork_pids).twice.and_return([666,999])
-      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
-      Process.should_receive(:kill).with('KILL', 666)
-      subject.should_receive(:remove_children).with(666)
-      Process.should_receive(:kill).with('KILL', 999)
-      subject.should_receive(:remove_children).with(999)
-      subject.kill_sporks
+      Guard::UI.should_receive(:debug).with(/111/)
+      alive.should_receive(:kill)
+      dead.should_not_receive(:kill)
+
+      runner.kill_sporks
     end
   end
 
-private
+  describe "#kill_global_sporks" do
+    context "when configured to do aggressive killing" do
+      before(:each) { runner.options[:aggressive_kill] = true }
 
-  def socket_mock
-    @socket_mock ||= mock(TCPSocket, :close => true)
+      it "delegates to #kill_global_sporks!" do
+        runner.should_receive(:kill_global_sporks!)
+        runner.kill_global_sporks
+      end
+    end
+
+    context "when configured to not do aggressive killing" do
+      before(:each) { runner.options[:aggressive_kill] = false }
+
+      it "does not call #kill_global_sporks!" do
+        runner.should_not_receive(:kill_global_sporks!)
+        runner.kill_global_sporks
+      end
+    end
+  end
+
+  describe "#kill_global_sporks!" do
+    it "calls a KILL command for each Spork server running on the system" do
+      # This is pretty hard to stub right now. We're hardcoding the command here
+      runner.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
+      runner.should_receive(:`).with("ps aux | awk '/spork/&&!/awk/{print $2;}'").and_return("666\n999")
+
+      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
+      Process.should_receive(:kill).with('KILL', 666)
+      Process.should_receive(:kill).with('KILL', 999)
+
+      runner.kill_global_sporks!
+    end
   end
 end

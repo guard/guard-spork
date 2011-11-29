@@ -11,8 +11,8 @@ describe Guard::Spork do
   end
 
   describe "#start" do
-    it "calls Runner#kill_sporks and Runner#launch_sporks with 'start'" do
-      subject.runner.should_receive(:kill_sporks)
+    it "calls Runner#kill_global_sporks and Runner#launch_sporks with 'start'" do
+      subject.runner.should_receive(:kill_global_sporks)
       subject.runner.should_receive(:launch_sporks).with("start")
       subject.start
     end
@@ -40,5 +40,4 @@ describe Guard::Spork do
       subject.stop
     end
   end
-
 end
