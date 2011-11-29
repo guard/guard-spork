@@ -3,19 +3,17 @@ require 'spec_helper'
 describe Guard::Spork::Runner do
   subject { Guard::Spork::Runner.new }
 
-  describe "#initialize" do
-    it "default options are { :wait => 30, :cucumber_port => 8990, :rspec_port => 8989, :test_unit_port => 8988, :test_unit_env => nil, :rspec_env => nil, :cucumber_env => nil }" do
-      subject.options.should == {
-        :wait => 30,
-        :cucumber_port => 8990,
-        :rspec_port => 8989,
-        :test_unit_port => 8988,
-        :test_unit_env => {},
-        :rspec_env => {},
-        :cucumber_env => {},
-        :aggressive_kill => true
-      }
-    end
+  describe "default options" do
+    subject { Guard::Spork::Runner.new.options }
+
+    it { should include(:wait => 30) }
+    it { should include(:cucumber_port => 8990) }
+    it { should include(:rspec_port => 8989) }
+    it { should include(:test_unit_port => 8988) }
+    it { should include(:test_unit_env => {}) }
+    it { should include(:rspec_env => {}) }
+    it { should include(:cucumber_env => {}) }
+    it { should include(:aggressive_kill => true) }
   end
   
   before(:each) do
