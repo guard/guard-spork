@@ -23,9 +23,14 @@ module Guard
       runner.launch_sporks("reload")
     end
 
-    def run_on_change(paths)
-      runner.kill_sporks
-      runner.launch_sporks("reload")
+    def run_on_change(paths_or_symbol)
+      if paths_or_symbol.is_a?(Symbol)
+        runner.kill_sporks(paths_or_symbol)
+        runner.launch_sporks("reload", paths_or_symbol)
+      else
+        runner.kill_sporks
+        runner.launch_sporks("reload")
+      end
     end
 
     def stop

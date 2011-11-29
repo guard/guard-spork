@@ -185,11 +185,19 @@ describe Guard::Spork::Runner do
     end
   end
 
-  describe "#launch_sporks(action)" do
-    let(:rspec_instance) { fake_instance }
+  describe "#launch_sporks(action, type)" do
+    let(:rspec_instance) { fake_instance(:rspec) }
+    let(:cucumber_instance) { fake_instance(:cucumber) }
 
-    def fake_instance
-      double("fake instance", :start => nil, :running? => true)
+    def fake_instance(type)
+      double("fake instance", :start => nil, :running? => true, :type => type).tap do |mock|
+        def mock.to_s() type.to_s end
+        # This one is needed to get this to work in 1.8.7
+        # The effect only shows up during tests; Array#join uses #to_s in both
+        # 1.8.7 and 1.9.2
+        # It's probably something related to RSpec
+        def mock.inspect() type.to_s end
+      end
     end
 
     around(:each) do |example|
@@ -197,51 +205,114 @@ describe Guard::Spork::Runner do
     end
 
     before(:each) do
-      runner.stub(:spork_instances => {:rspec => rspec_instance})
+      runner.stub(:spork_instances => {:rspec => rspec_instance, :cucumber => cucumber_instance})
       runner.stub(:sleep)
     end
 
-    it "outputs an info message" do
-      runner.stub(:spork_instances => {"a" => fake_instance, "b" => fake_instance, "c" => fake_instance})
-      Guard::UI.should_receive(:info).with("Kissing Spork for a, b, c", :reset => true)
-      runner.launch_sporks("kiss")
-    end
+    context "with no type specified" do
+      it "outputs an info message" do
+        runner.stub(:spork_instances => {
+          "a" => fake_instance("one"),
+          "b" => fake_instance("two"),
+          "c" => fake_instance("three")
+        })
+        Guard::UI.should_receive(:info).with("Kissing Spork for one, two, three", :reset => true)
+        runner.launch_sporks("kiss")
+      end
 
-    it "starts all spork instances" do
-      rspec_instance.should_receive(:start)
-      runner.launch_sporks("")
-    end
-
-    it "waits for the spork instances to start" do
-      rspec_instance.should_receive(:running?).and_return(false, false, false, true)
-      runner.should_receive(:sleep).with(1).exactly(4).times
-
-      runner.launch_sporks("")
-    end
-
-    # This behavior is a bit weird, isn't it?
-    it "does not wait longer than the configured wait duration + 60" do
-      runner.options[:wait] = 7
-      runner.should_receive(:sleep).with(1).exactly(67).times
-      rspec_instance.stub(:running? => false)
-
-      expect {
+      it "starts all spork instances" do
+        rspec_instance.should_receive(:start)
+        cucumber_instance.should_receive(:start)
         runner.launch_sporks("")
-      }.to throw_symbol(:task_has_failed)
+      end
+
+      it "waits for the spork instances to start" do
+        rspec_instance.should_receive(:running?).and_return(false, false, false, true)
+        cucumber_instance.stub(:running? => true)
+        runner.should_receive(:sleep).with(1).exactly(4).times
+
+        runner.launch_sporks("")
+      end
+
+      # This behavior is a bit weird, isn't it?
+      it "does not wait longer than the configured wait duration + 60" do
+        runner.options[:wait] = 7
+        runner.should_receive(:sleep).with(1).exactly(67).times
+        rspec_instance.stub(:running? => false)
+        cucumber_instance.stub(:running? => true)
+
+        expect {
+          runner.launch_sporks("")
+        }.to throw_symbol(:task_has_failed)
+      end
+    end
+
+    context "with a type specified" do
+      it "outputs an info message" do
+        runner.stub(:spork_instances => {
+          "a" => fake_instance("one"),
+          "b" => fake_instance("two"),
+          "c" => fake_instance("three")
+        })
+        Guard::UI.should_receive(:info).with("Kissing Spork for two", :reset => true)
+        runner.launch_sporks("kiss", "b")
+      end
+
+      it "starts the matching spork instance" do
+        rspec_instance.should_receive(:start)
+        cucumber_instance.should_not_receive(:start)
+        runner.launch_sporks("", :rspec)
+      end
+
+      it "waits for the spork instances to start" do
+        rspec_instance.should_receive(:running?).and_return(false, false, false, true)
+        runner.should_receive(:sleep).with(1).exactly(4).times
+
+        cucumber_instance.should_not_receive(:running?)
+        runner.launch_sporks("", :rspec)
+      end
+
+      # This behavior is a bit weird, isn't it?
+      it "does not wait longer than the configured wait duration + 60" do
+        runner.options[:wait] = 7
+        runner.should_receive(:sleep).with(1).exactly(67).times
+        rspec_instance.stub(:running? => false)
+
+        cucumber_instance.should_not_receive(:running?)
+        expect {
+          runner.launch_sporks("", :rspec)
+        }.to throw_symbol(:task_has_failed)
+      end
     end
   end
 
-  describe "#kill_sporks" do
-    it "kills all alive spork instances" do
-      alive = double("alive instance", :alive? => true, :pid => 111)
-      dead = double("dead instance", :alive? => false, :pid => 222)
-      runner.stub(:spork_instances => [alive, dead])
+  describe "#kill_sporks(type)" do
+    context "without a type" do
+      it "kills all alive spork instances" do
+        alive = double("alive instance", :alive? => true, :pid => 111)
+        dead = double("dead instance", :alive? => false, :pid => 222)
+        runner.stub(:spork_instances => {'a' => alive, 'b' => dead})
 
-      Guard::UI.should_receive(:debug).with(/111/)
-      alive.should_receive(:kill)
-      dead.should_not_receive(:kill)
+        Guard::UI.should_receive(:debug).with(/111/)
+        alive.should_receive(:kill)
+        dead.should_not_receive(:kill)
 
-      runner.kill_sporks
+        runner.kill_sporks
+      end
+    end
+
+    context "with a given type" do
+      it "kills the matching spork instance" do
+        matching = double("alive instance", :alive? => true, :pid => 111)
+        other = double("dead instance", :alive? => true, :pid => 222)
+        runner.stub(:spork_instances => {:matching => matching, :other => other})
+
+        Guard::UI.should_receive(:debug).with(/111/)
+        matching.should_receive(:kill)
+        other.should_not_receive(:kill)
+
+        runner.kill_sporks(:matching)
+      end
     end
   end
 

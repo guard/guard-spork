@@ -19,14 +19,15 @@ module Guard
         initialize_spork_instances
       end
 
-      def launch_sporks(action)
-        UI.info "#{action.capitalize}ing Spork for #{spork_names}", :reset => true
-        spork_instances.values.each(&:start)
-        verify_launches(action)
+      def launch_sporks(action, type = nil)
+        instances = find_instances(type)
+        UI.info "#{action.capitalize}ing Spork for #{instances.join(', ')}", :reset => true
+        instances.each(&:start)
+        verify_launches(action, instances)
       end
 
-      def kill_sporks
-        alive = spork_instances.select(&:alive?)
+      def kill_sporks(type = nil)
+        alive = find_instances(type).select(&:alive?)
         UI.debug "Killing Spork servers with PID: #{alive.map(&:pid).join(', ')}"
         alive.each(&:kill)
       end
@@ -52,30 +53,40 @@ module Guard
         end
       end
 
-      def verify_launches(action)
+      def find_instances(type = nil)
+        if type.nil?
+          spork_instances.values
+        else
+          [spork_instances[type]]
+        end
+      end
+
+      def verify_launches(action, instances)
         start_time = Time.now
-        if wait_for_launch(options[:wait])
-          UI.info "Spork server for #{spork_names} successfully #{action}ed", :reset => true
-          Notifier.notify "#{spork_names} successfully #{action}ed", :title => "Spork", :image => :success
+        names = instances.join(', ')
+
+        if wait_for_launch(instances, options[:wait])
+          UI.info "Spork server for #{names} successfully #{action}ed", :reset => true
+          Notifier.notify "#{names} successfully #{action}ed", :title => "Spork", :image => :success
         else
           UI.reset_line # workaround before Guard::UI update
-          UI.error "Could not #{action} Spork server for #{spork_names} after #{options[:wait]} seconds. I will continue waiting for a further 60 seconds."
-          Notifier.notify "#{spork_names} NOT #{action}ed. Continuing to wait for 60 seconds.", :title => "Spork", :image => :failed
-          if wait_for_launch(60)
+          UI.error "Could not #{action} Spork server for #{names} after #{options[:wait]} seconds. I will continue waiting for a further 60 seconds."
+          Notifier.notify "#{names} NOT #{action}ed. Continuing to wait for 60 seconds.", :title => "Spork", :image => :failed
+          if wait_for_launch(instances, 60)
             total_time = Time.now - start_time
-            UI.info "Spork server for #{spork_names} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
-            Notifier.notify "#{spork_names} eventually #{action}ed after #{total_time.to_i} seconds", :title => "Spork", :image => :success
+            UI.info "Spork server for #{names} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
+            Notifier.notify "#{names} eventually #{action}ed after #{total_time.to_i} seconds", :title => "Spork", :image => :success
           else
             UI.reset_line # workaround before Guard::UI update
-            UI.error "Could not #{action} Spork server for #{spork_names}. Make sure you can use it manually first."
-            Notifier.notify "#{spork_names} NOT #{action}ed", :title => "Spork", :image => :failed
+            UI.error "Could not #{action} Spork server for #{names}. Make sure you can use it manually first."
+            Notifier.notify "#{names} NOT #{action}ed", :title => "Spork", :image => :failed
             throw :task_has_failed
           end
         end
       end
 
-      def wait_for_launch(wait)
-        not_running = spork_instances.values.dup
+      def wait_for_launch(instances, wait)
+        not_running = instances.dup
         wait.times do
           sleep 1
           not_running.delete_if { |instance| instance.running? }
@@ -86,10 +97,6 @@ module Guard
 
       def ps_spork_pids
         `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
-      end
-
-      def spork_names
-        spork_instances.keys.map(&:to_s).sort.join(', ')
       end
 
       def should_use?(what)
