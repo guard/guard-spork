@@ -5,9 +5,17 @@ describe Guard::Spork do
   let(:runner) { subject.runner }
 
   describe '#initialize' do
+    let(:runner) { double('runner instance', :kill_orphan_sporks => nil) }
+    before(:each) { Guard::Spork::Runner.stub(:new => runner) }
+
     it "instantiates Runner with the given options" do
-      Guard::Spork::Runner.should_receive(:new).with(:bundler => false)
-      Guard::Spork.new [], { :bundler => false }
+      Guard::Spork::Runner.should_receive(:new).with(:bundler => false).and_return(runner)
+      Guard::Spork.new [], :bundler => false
+    end
+
+    it "kills any orphan spork instances" do
+      runner.should_receive(:kill_orphan_sporks)
+      Guard::Spork.new []
     end
   end
 

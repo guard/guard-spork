@@ -2,11 +2,13 @@ require 'spec_helper'
 
 class Guard::Spork
   describe SporkInstance do
-    let(:env) { Hash.new }
+    it "remembers instances" do
+      instance = SporkInstance.new('type', 0, {}, {})
+    end
 
     describe "rspec on port 1337" do
       let(:options) { Hash.new }
-      subject { SporkInstance.new(:rspec, 1337, env, options) }
+      subject { SporkInstance.new(:rspec, 1337, {}, options) }
 
       its(:command) { should == "spork -p 1337" }
       its(:port) { should == 1337 }
@@ -21,7 +23,7 @@ class Guard::Spork
 
     describe "cucumber on port 1337" do
       let(:options) { Hash.new }
-      subject { SporkInstance.new(:cucumber, 1337, env, options) }
+      subject { SporkInstance.new(:cucumber, 1337, {}, options) }
 
       its(:command) { should == "spork cu -p 1337" }
       its(:port) { should == 1337 }
@@ -36,7 +38,7 @@ class Guard::Spork
 
     describe "test_unit on port 1337" do
       let(:options) { Hash.new }
-      subject { SporkInstance.new(:test_unit, 1337, env, options) }
+      subject { SporkInstance.new(:test_unit, 1337, {}, options) }
 
       its(:command) { should == "spork testunit -p 1337" }
       its(:port) { should == 1337 }
@@ -84,6 +86,8 @@ class Guard::Spork
     end
 
     describe "#start" do
+      after(:each) { ENV.delete('SPORK_PIDS') }
+
       it "forks and stores the pid" do
         instance.should_receive(:fork).and_return("a pid")
         expect {
@@ -96,6 +100,21 @@ class Guard::Spork
         instance.should_receive(:fork).and_yield
         instance.should_receive(:exec).with("environment", "command")
         instance.start
+      end
+
+      it "stores the PID inside the current ENV" do
+        instance.stub(:fork => 42)
+        expect {
+          instance.start
+        }.to change { ENV['SPORK_PIDS'] }.from(nil).to('42')
+      end
+
+      it "appends more PIDs to the ENV when old values are present" do
+        instance.stub(:fork => 42)
+        ENV['SPORK_PIDS'] = '13'
+        expect {
+          instance.start
+        }.to change { ENV['SPORK_PIDS'] }.from('13').to('13,42')
       end
     end
 

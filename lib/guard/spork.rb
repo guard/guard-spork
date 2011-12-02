@@ -11,6 +11,11 @@ module Guard
     def initialize(watchers=[], options={})
       super
       @runner = Runner.new(options)
+
+      # This class will be reinitialized by Guard when the Guardfile
+      # is reevaluated, so we must always begin by trying to clean
+      # up after any hypothetical predecessor
+      runner.kill_orphan_sporks
     end
 
     def start

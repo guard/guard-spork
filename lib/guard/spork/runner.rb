@@ -39,9 +39,14 @@ module Guard
       end
 
       def kill_global_sporks!
-        pids = ps_spork_pids
-        UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
-        pids.each { |pid| Process.kill("KILL", pid) }
+        kill_pids ps_spork_pids
+      end
+
+      def kill_orphan_sporks
+        if ENV['SPORK_PIDS']
+          kill_pids(ENV['SPORK_PIDS'].split(',').map(&:to_i))
+          ENV.delete('SPORK_PIDS')
+        end
       end
 
     private
@@ -51,6 +56,11 @@ module Guard
           port, env = options[:"#{type}_port"], options[:"#{type}_env"]
           spork_instances[type] = SporkInstance.new(type, port, env, :bundler => should_use?(:bundler)) if should_use?(type)
         end
+      end
+
+      def kill_pids(pids)
+        UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
+        pids.each { |pid| Process.kill("KILL", pid) }
       end
 
       def find_instances(type = nil)
