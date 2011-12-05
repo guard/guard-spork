@@ -29,7 +29,7 @@ module Guard
       def kill_sporks(type = nil)
         alive = find_instances(type).select(&:alive?)
         UI.debug "Killing Spork servers with PID: #{alive.map(&:pid).join(', ')}"
-        alive.each(&:kill)
+        alive.each(&:stop)
       end
 
       def kill_global_sporks
@@ -51,10 +51,10 @@ module Guard
 
     private
       def initialize_spork_instances
-        @spork_instances = {}
+        @spork_instances = []
         [:rspec, :cucumber, :test_unit].each do |type|
           port, env = options[:"#{type}_port"], options[:"#{type}_env"]
-          spork_instances[type] = SporkInstance.new(type, port, env, :bundler => should_use?(:bundler)) if should_use?(type)
+          spork_instances << SporkInstance.new(type, port, env, :bundler => should_use?(:bundler)) if should_use?(type)
         end
       end
 
@@ -65,9 +65,9 @@ module Guard
 
       def find_instances(type = nil)
         if type.nil?
-          spork_instances.values
+          spork_instances
         else
-          [spork_instances[type]]
+          spork_instances.select { |instance| instance.type == type }
         end
       end
 
