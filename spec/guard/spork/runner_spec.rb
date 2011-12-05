@@ -33,6 +33,10 @@ describe Guard::Spork::Runner do
       end
     end
 
+    def instance(type, runner = runner)
+      runner.spork_instances.find { |instance| instance.type == type }
+    end
+
     it "has a spork instance for :rspec when configured" do
       runner = Guard::Spork::Runner.new({
         :rspec => true,
@@ -40,7 +44,7 @@ describe Guard::Spork::Runner do
         :rspec_env  => {'spec' => 'yes'},
       })
 
-      runner.spork_instances[:rspec].tap do |instance|
+      instance(:rspec, runner).tap do |instance|
         instance.port.should == 2
         instance.env.should == {'spec' => 'yes'}
       end
@@ -53,7 +57,7 @@ describe Guard::Spork::Runner do
         :cucumber_env  => {'cuke' => 'yes'},
       })
 
-      runner.spork_instances[:cucumber].tap do |instance|
+      instance(:cucumber, runner).tap do |instance|
         instance.port.should == 2
         instance.env.should == {'cuke' => 'yes'}
       end
@@ -66,7 +70,7 @@ describe Guard::Spork::Runner do
         :test_unit_env  => {'unit' => 'yes'},
       })
 
-      runner.spork_instances[:test_unit].tap do |instance|
+      instance(:test_unit, runner).tap do |instance|
         instance.port.should == 2
         instance.env.should == {'unit' => 'yes'}
       end
@@ -83,19 +87,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :test_unit" do
-        runner.spork_instances[:test_unit].should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:test_unit).should be_instance_of(Guard::Spork::SporkInstance)
       end
 
       it "does not have bundler enabled for the test_unit instance" do
-        runner.spork_instances[:test_unit].options.should include(:bundler => false)
+        instance(:test_unit).options.should include(:bundler => false)
       end
 
       it "does not have a spork instance for :rspec" do
-        runner.spork_instances[:rspec].should be_nil
+        instance(:rspec).should be_nil
       end
 
       it "does not have a spork instance for :cucumber" do
-        runner.spork_instances[:cucumber].should be_nil
+        instance(:cucumber).should be_nil
       end
     end
 
@@ -110,19 +114,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        runner.spork_instances[:rspec].should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:rspec).should be_instance_of(Guard::Spork::SporkInstance)
       end
 
       it "does not have bundler enabled for the rspec instance" do
-        runner.spork_instances[:rspec].options.should include(:bundler => false)
+        instance(:rspec).options.should include(:bundler => false)
       end
 
       it "does not have a spork instance for :test_unit" do
-        runner.spork_instances[:test_unit].should be_nil
+        instance(:test_unit).should be_nil
       end
 
       it "does not have a spork instance for :cucumber" do
-        runner.spork_instances[:cucumber].should be_nil
+        instance(:cucumber).should be_nil
       end
     end
 
@@ -137,19 +141,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :cucumber" do
-        runner.spork_instances[:cucumber].should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:cucumber).should be_instance_of(Guard::Spork::SporkInstance)
       end
 
       it "does not have bundler enabled for the cucumber instance" do
-        runner.spork_instances[:cucumber].options.should include(:bundler => false)
+        instance(:cucumber).options.should include(:bundler => false)
       end
 
       it "does not have a spork instance for :test_unit" do
-        runner.spork_instances[:test_unit].should be_nil
+        instance(:test_unit).should be_nil
       end
 
       it "does not have a spork instance for :rspec" do
-        runner.spork_instances[:rspec].should be_nil
+        instance(:rspec).should be_nil
       end
     end
 
@@ -164,23 +168,23 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        runner.spork_instances[:rspec].should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:rspec).should be_instance_of(Guard::Spork::SporkInstance)
       end
 
       it "has a spork instance for :cucumber" do
-        runner.spork_instances[:cucumber].should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:cucumber).should be_instance_of(Guard::Spork::SporkInstance)
       end
 
       it "has bundler enabled for the rspec instance" do
-        runner.spork_instances[:rspec].options.should include(:bundler => true)
+        instance(:rspec).options.should include(:bundler => true)
       end
 
       it "has bundler enabled for the cucumber instance" do
-        runner.spork_instances[:cucumber].options.should include(:bundler => true)
+        instance(:cucumber).options.should include(:bundler => true)
       end
 
       it "does not have a spork instance for :test_unit" do
-        runner.spork_instances[:test_unit].should be_nil
+        instance(:test_unit).should be_nil
       end
     end
   end
@@ -190,14 +194,16 @@ describe Guard::Spork::Runner do
     let(:cucumber_instance) { fake_instance(:cucumber) }
 
     def fake_instance(type)
-      double("fake instance", :start => nil, :running? => true, :type => type).tap do |mock|
-        def mock.to_s() type.to_s end
-        # This one is needed to get this to work in 1.8.7
-        # The effect only shows up during tests; Array#join uses #to_s in both
-        # 1.8.7 and 1.9.2
-        # It's probably something related to RSpec
-        def mock.inspect() type.to_s end
+      fake = Object.new
+      fake.instance_eval do
+        def start() nil end
+        def running?() true end
+        def type() @type end
+        def to_s() type.to_s end
+        def inspect() to_s end
       end
+      fake.instance_variable_set('@type', type)
+      fake
     end
 
     around(:each) do |example|
@@ -205,17 +211,17 @@ describe Guard::Spork::Runner do
     end
 
     before(:each) do
-      runner.stub(:spork_instances => {:rspec => rspec_instance, :cucumber => cucumber_instance})
+      runner.stub(:spork_instances => [rspec_instance, cucumber_instance])
       runner.stub(:sleep)
     end
 
     context "with no type specified" do
       it "outputs an info message" do
-        runner.stub(:spork_instances => {
-          "a" => fake_instance("one"),
-          "b" => fake_instance("two"),
-          "c" => fake_instance("three")
-        })
+        runner.stub(:spork_instances => [
+          fake_instance("one"),
+          fake_instance("two"),
+          fake_instance("three"),
+        ])
         Guard::UI.should_receive(:info).with("Kissing Spork for one, two, three", :reset => true)
         runner.launch_sporks("kiss")
       end
@@ -249,13 +255,13 @@ describe Guard::Spork::Runner do
 
     context "with a type specified" do
       it "outputs an info message" do
-        runner.stub(:spork_instances => {
-          "a" => fake_instance("one"),
-          "b" => fake_instance("two"),
-          "c" => fake_instance("three")
-        })
+        runner.stub(:spork_instances => [
+          fake_instance("one"),
+          fake_instance("two"),
+          fake_instance("three"),
+        ])
         Guard::UI.should_receive(:info).with("Kissing Spork for two", :reset => true)
-        runner.launch_sporks("kiss", "b")
+        runner.launch_sporks("kiss", "two")
       end
 
       it "starts the matching spork instance" do
@@ -291,7 +297,7 @@ describe Guard::Spork::Runner do
       it "kills all alive spork instances" do
         alive = double("alive instance", :alive? => true, :pid => 111)
         dead = double("dead instance", :alive? => false, :pid => 222)
-        runner.stub(:spork_instances => {'a' => alive, 'b' => dead})
+        runner.stub(:spork_instances => [alive, dead])
 
         Guard::UI.should_receive(:debug).with(/111/)
         alive.should_receive(:kill)
@@ -303,9 +309,9 @@ describe Guard::Spork::Runner do
 
     context "with a given type" do
       it "kills the matching spork instance" do
-        matching = double("alive instance", :alive? => true, :pid => 111)
-        other = double("dead instance", :alive? => true, :pid => 222)
-        runner.stub(:spork_instances => {:matching => matching, :other => other})
+        matching = double("alive instance", :alive? => true, :pid => 111, :type => :matching)
+        other = double("dead instance", :alive? => true, :pid => 222, :type => :other)
+        runner.stub(:spork_instances => [matching, other])
 
         Guard::UI.should_receive(:debug).with(/111/)
         matching.should_receive(:kill)
