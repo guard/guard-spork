@@ -29,7 +29,7 @@ module Guard
       def kill_sporks(type = nil)
         alive = find_instances(type).select(&:alive?)
         UI.debug "Killing Spork servers with PID: #{alive.map(&:pid).join(', ')}"
-        alive.each(&:kill)
+        alive.each(&:stop)
       end
 
       def kill_global_sporks

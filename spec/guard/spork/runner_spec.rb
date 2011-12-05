@@ -300,8 +300,8 @@ describe Guard::Spork::Runner do
         runner.stub(:spork_instances => [alive, dead])
 
         Guard::UI.should_receive(:debug).with(/111/)
-        alive.should_receive(:kill)
-        dead.should_not_receive(:kill)
+        alive.should_receive(:stop)
+        dead.should_not_receive(:stop)
 
         runner.kill_sporks
       end
@@ -314,8 +314,8 @@ describe Guard::Spork::Runner do
         runner.stub(:spork_instances => [matching, other])
 
         Guard::UI.should_receive(:debug).with(/111/)
-        matching.should_receive(:kill)
-        other.should_not_receive(:kill)
+        matching.should_receive(:stop)
+        other.should_not_receive(:stop)
 
         runner.kill_sporks(:matching)
       end
