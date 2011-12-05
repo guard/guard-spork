@@ -1,4 +1,4 @@
-# Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spokr)
+# Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spork)
 
 Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber/Test::Unit [Spork](https://github.com/timcharper/spork) server(s).
 
@@ -41,8 +41,9 @@ guard 'spork' do
   watch(%r{^config/initializers/.*\.rb$})
   watch('Gemfile')
   watch('Gemfile.lock')
-  watch('spec/spec_helper.rb')
-  watch('test/test_helper.rb')
+  watch('spec/spec_helper.rb') { :rspec }
+  watch('test/test_helper.rb') { :test_unit }
+  watch(%r{features/support/}) { :cucumber }
 end
 ```
 
