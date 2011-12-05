@@ -5,7 +5,7 @@ describe Guard::Spork do
   let(:runner) { subject.runner }
 
   describe '#initialize' do
-    let(:runner) { double('runner instance', :kill_orphan_sporks => nil) }
+    let(:runner) { double('runner instance', :reevaluate => nil) }
     before(:each) { Guard::Spork::Runner.stub(:new => runner) }
 
     it "instantiates Runner with the given options" do
@@ -14,7 +14,7 @@ describe Guard::Spork do
     end
 
     it "kills any orphan spork instances" do
-      runner.should_receive(:kill_orphan_sporks)
+      runner.should_receive(:reevaluate)
       Guard::Spork.new []
     end
   end

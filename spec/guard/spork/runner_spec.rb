@@ -356,7 +356,11 @@ describe Guard::Spork::Runner do
     end
   end
 
-  describe "#kill_orphan_sporks" do
+  describe "#reevaluate" do
+    before(:each) do
+      runner.stub(:launch_sporks)
+    end
+
     around(:each) do |example|
       ENV['SPORK_PIDS'] = '666,999'
       Process.stub(:kill)
@@ -369,17 +373,23 @@ describe Guard::Spork::Runner do
       Process.should_receive(:kill).with('KILL', 666)
       Process.should_receive(:kill).with('KILL', 999)
 
-      runner.kill_orphan_sporks
+      runner.reevaluate
     end
 
     it "clears the SPORK_PIDS environment variable" do
-      expect { runner.kill_orphan_sporks }.to change { ENV['SPORK_PIDS'] }.to(nil)
+      expect { runner.reevaluate }.to change { ENV['SPORK_PIDS'] }.to(nil)
     end
 
     it "works when the environment variable is unset" do
       ENV['SPORK_PIDS'] = nil
       Process.should_not_receive(:kill)
-      runner.kill_orphan_sporks
+      runner.reevaluate
+    end
+
+    it "reloads sporks" do
+      runner.should_receive(:launch_sporks)
+      runner.reevaluate
     end
   end
+
 end

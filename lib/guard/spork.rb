@@ -15,7 +15,7 @@ module Guard
       # This class will be reinitialized by Guard when the Guardfile
       # is reevaluated, so we must always begin by trying to clean
       # up after any hypothetical predecessor
-      runner.kill_orphan_sporks
+      runner.reevaluate
     end
 
     def start

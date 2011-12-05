@@ -42,10 +42,11 @@ module Guard
         kill_pids ps_spork_pids
       end
 
-      def kill_orphan_sporks
+      def reevaluate
         if ENV['SPORK_PIDS']
           kill_pids(ENV['SPORK_PIDS'].split(',').map(&:to_i))
           ENV.delete('SPORK_PIDS')
+          launch_sporks("reload")
         end
       end
 
