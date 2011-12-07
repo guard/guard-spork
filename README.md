@@ -112,6 +112,7 @@ If you can start Spork manually but get the following error message when using G
   Starting Spork for RSpec ERROR: Could not start Spork for RSpec/Cucumber. Make sure you can use it manually first.
 
 Try to increase the value of the `:wait => 60` option before any further investigation.
+It's possible that this error is the result of an unnecessary /test directory in the root of your application. Removing the /test directory entirely may resolve this error.
 
 ## Development
 
