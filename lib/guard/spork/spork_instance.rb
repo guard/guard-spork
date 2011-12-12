@@ -25,7 +25,7 @@ module Guard
 
       def start
         @pid = fork do
-          exec env, command
+          env_exec env, command
         end
         store_pid
       end
