@@ -101,7 +101,7 @@ class Guard::Spork
       it "execs the command with the env in the fork" do
         instance.stub(:command => "command", :env => "environment")
         instance.should_receive(:fork).and_yield
-        instance.should_receive(:exec).with("environment", "command")
+        instance.should_receive(:env_exec).with("environment", "command")
         instance.start
       end
 
