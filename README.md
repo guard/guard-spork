@@ -3,7 +3,7 @@
 Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber/Test::Unit [Spork](https://github.com/timcharper/spork) server(s).
 
 * Compatible with Spork 0.8.4 & 0.9.0.rcX.
-* Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions of JRuby & Rubinius.
+* Tested against Ruby 1.8.7, 1.9.2, REE and the latest versions Rubinius.
 
 ## Install
 
