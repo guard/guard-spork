@@ -114,6 +114,8 @@ If you can start Spork manually but get the following error message when using G
 Try to increase the value of the `:wait => 60` option before any further investigation.
 It's possible that this error is the result of an unnecessary /test directory in the root of your application. Removing the /test directory entirely may resolve this error.
 
+**Growl Notifications:** When using guard-spork with [guard-rspec](https://github.com/guard/guard-rspec) and [growl_notify](https://github.com/scottdavis/growl_notify) (or [growl](https://rubygems.org/gems/growl)) you may not see any pass/fail growl notifications.
+
 ## Development
 
 * Source hosted at [GitHub](https://github.com/guard/guard-spork).
