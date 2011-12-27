@@ -13,9 +13,13 @@ Install the gem:
 
     $ gem install guard-spork
 
-Add it to your Gemfile (inside test group):
+Add it to your Gemfile (inside development group):
 
-    gem 'guard-spork'
+```ruby
+group :development do
+  gem 'guard-spork'
+end
+```
 
 Add guard definition to your Guardfile with:
 
