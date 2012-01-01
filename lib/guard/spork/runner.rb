@@ -34,23 +34,12 @@ module Guard
 
       def kill_global_sporks
         if options[:aggressive_kill]
-          kill_global_sporks!
-        end
-      end
-
-      def kill_global_sporks!
-        kill_pids ps_spork_pids
-      end
-
-      def reevaluate
-        if ENV['SPORK_PIDS']
-          kill_pids(ENV['SPORK_PIDS'].split(',').map(&:to_i))
-          ENV.delete('SPORK_PIDS')
-          launch_sporks("reload")
+          kill_pids ps_spork_pids
         end
       end
 
     private
+
       def initialize_spork_instances
         @spork_instances = []
         [:rspec, :cucumber, :test_unit].each do |type|
@@ -62,6 +51,10 @@ module Guard
       def kill_pids(pids)
         UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
         pids.each { |pid| Process.kill("KILL", pid) }
+      end
+
+      def ps_spork_pids
+        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
 
       def find_instances(type = nil)
@@ -104,10 +97,6 @@ module Guard
           return true if not_running.empty?
         end
         false
-      end
-
-      def ps_spork_pids
-        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
 
       def should_use?(what)

@@ -83,7 +83,6 @@ guard 'spork', :cucumber => false, :bundler => false do
 end
 ```
 
-
 You can provide additional environment variables for RSpec, Cucumber, and Test::Unit with the <tt>:rspec_env</tt>, <tt>:cucumber_env</tt>, and <tt>:test_unit_env</tt> options:
 
 ``` ruby

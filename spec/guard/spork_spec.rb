@@ -12,11 +12,6 @@ describe Guard::Spork do
       Guard::Spork::Runner.should_receive(:new).with(:bundler => false).and_return(runner)
       Guard::Spork.new [], :bundler => false
     end
-
-    it "kills any orphan spork instances" do
-      runner.should_receive(:reevaluate)
-      Guard::Spork.new []
-    end
   end
 
   describe "#start" do

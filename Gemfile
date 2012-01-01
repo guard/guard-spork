@@ -4,26 +4,7 @@ source "http://rubygems.org"
 gemspec
 
 gem 'rake'
-
-require 'rbconfig'
-
+gem 'ruby_gntp'
 platforms :ruby do
-  if Config::CONFIG['target_os'] =~ /darwin/i
-    gem 'rb-fsevent', '>= 0.4.0'
-    gem 'growl',      '~> 1.0.3'
-  end
-  if Config::CONFIG['target_os'] =~ /linux/i
-    gem 'rb-inotify', '>= 0.8.5'
-    gem 'libnotify',  '~> 0.1.3'
-  end
-end
-
-platforms :jruby do
-  if Config::CONFIG['target_os'] =~ /darwin/i
-    gem 'growl',      '~> 1.0.3'
-  end
-  if Config::CONFIG['target_os'] =~ /linux/i
-    gem 'rb-inotify', '>= 0.8.5'
-    gem 'libnotify',  '~> 0.1.3'
-  end
+  gem 'rb-readline'
 end

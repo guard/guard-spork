@@ -326,8 +326,20 @@ describe Guard::Spork::Runner do
     context "when configured to do aggressive killing" do
       before(:each) { runner.options[:aggressive_kill] = true }
 
-      it "delegates to #kill_global_sporks!" do
-        runner.should_receive(:kill_global_sporks!)
+      it "calls #kill_pids" do
+        runner.should_receive(:kill_pids)
+        runner.kill_global_sporks
+      end
+
+      it "calls a KILL command for each Spork server running on the system" do
+        # This is pretty hard to stub right now. We're hardcoding the command here
+        runner.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
+        runner.should_receive(:`).with("ps aux | awk '/spork/&&!/awk/{print $2;}'").and_return("666\n999")
+
+        Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
+        Process.should_receive(:kill).with('KILL', 666)
+        Process.should_receive(:kill).with('KILL', 999)
+
         runner.kill_global_sporks
       end
     end
@@ -335,60 +347,10 @@ describe Guard::Spork::Runner do
     context "when configured to not do aggressive killing" do
       before(:each) { runner.options[:aggressive_kill] = false }
 
-      it "does not call #kill_global_sporks!" do
-        runner.should_not_receive(:kill_global_sporks!)
+      it "does not call #kill_pids" do
+        runner.should_not_receive(:kill_pids)
         runner.kill_global_sporks
       end
-    end
-  end
-
-  describe "#kill_global_sporks!" do
-    it "calls a KILL command for each Spork server running on the system" do
-      # This is pretty hard to stub right now. We're hardcoding the command here
-      runner.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
-      runner.should_receive(:`).with("ps aux | awk '/spork/&&!/awk/{print $2;}'").and_return("666\n999")
-
-      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
-      Process.should_receive(:kill).with('KILL', 666)
-      Process.should_receive(:kill).with('KILL', 999)
-
-      runner.kill_global_sporks!
-    end
-  end
-
-  describe "#reevaluate" do
-    before(:each) do
-      runner.stub(:launch_sporks)
-    end
-
-    around(:each) do |example|
-      ENV['SPORK_PIDS'] = '666,999'
-      Process.stub(:kill)
-      example.run
-      ENV.delete('SPORK_PIDS')
-    end
-
-    it "sends a KILL signal to all Sporks in the SPORK_PIDs environment variable" do
-      Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
-      Process.should_receive(:kill).with('KILL', 666)
-      Process.should_receive(:kill).with('KILL', 999)
-
-      runner.reevaluate
-    end
-
-    it "clears the SPORK_PIDS environment variable" do
-      expect { runner.reevaluate }.to change { ENV['SPORK_PIDS'] }.to(nil)
-    end
-
-    it "works when the environment variable is unset" do
-      ENV['SPORK_PIDS'] = nil
-      Process.should_not_receive(:kill)
-      runner.reevaluate
-    end
-
-    it "reloads sporks" do
-      runner.should_receive(:launch_sporks)
-      runner.reevaluate
     end
   end
 

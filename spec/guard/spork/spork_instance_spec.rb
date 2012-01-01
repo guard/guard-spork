@@ -104,21 +104,6 @@ class Guard::Spork
         instance.should_receive(:env_exec).with("environment", "command")
         instance.start
       end
-
-      it "stores the PID inside the current ENV" do
-        instance.stub(:fork => 42)
-        expect {
-          instance.start
-        }.to change { ENV['SPORK_PIDS'] }.from(nil).to('42')
-      end
-
-      it "appends more PIDs to the ENV when old values are present" do
-        instance.stub(:fork => 42)
-        ENV['SPORK_PIDS'] = '13'
-        expect {
-          instance.start
-        }.to change { ENV['SPORK_PIDS'] }.from('13').to('13,42')
-      end
     end
 
     describe "#stop" do

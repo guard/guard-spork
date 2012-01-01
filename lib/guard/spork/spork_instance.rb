@@ -27,7 +27,6 @@ module Guard
         @pid = fork do
           env_exec env, command
         end
-        store_pid
       end
 
       def stop
@@ -71,17 +70,12 @@ module Guard
         end
       end
 
-      private
-        def use_bundler?
-          options[:bundler]
-        end
-
-        def store_pid
-          # We need to store away the PIDs somewhere safe since
-          # Guard will destroy our class instances when Guardfile is
-          # reevaluated without telling us beforehand
-          ENV['SPORK_PIDS'] = [ENV['SPORK_PIDS'], pid.to_s].compact.join(",")
-        end
+    private
+    
+      def use_bundler?
+        options[:bundler]
+      end
+      
     end
   end
 end
