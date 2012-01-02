@@ -50,7 +50,7 @@ module Guard
 
       def kill_pids(pids)
         UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
-        pids.each { |pid| Process.kill("KILL", pid) }
+        pids.each { |pid| ::Process.kill("KILL", pid) }
       end
 
       def ps_spork_pids
