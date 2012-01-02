@@ -30,7 +30,7 @@ module Guard
       end
 
       def stop
-        Process.kill('KILL', pid)
+        ::Process.kill('KILL', pid)
       end
 
       def alive?
@@ -71,11 +71,11 @@ module Guard
       end
 
     private
-    
+
       def use_bundler?
         options[:bundler]
       end
-      
+
     end
   end
 end
