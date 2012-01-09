@@ -35,7 +35,7 @@ module Guard
 
       def alive?
         return false unless pid
-        Process.waitpid(pid, Process::WNOHANG).nil?
+        ::Process.waitpid(pid, ::Process::WNOHANG).nil?
       end
 
       def running?
