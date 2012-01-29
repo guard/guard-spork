@@ -78,7 +78,7 @@ end
 Guard::Spork automatically detect RSpec/Cucumber/Test::Unit/Bundler presence but you can disable any of them with the corresponding options:
 
 ``` ruby
-guard 'spork', :cucumber => false, :bundler => false do
+guard 'spork', :rspec => false, :cucumber => false, :test_unit => false, :bundler => false do
   # ...
 end
 ```
