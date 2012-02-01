@@ -105,7 +105,8 @@ Available options:
 :test_unit_env => { 'RAILS_ENV' => 'baz' } # Default: nil
 :rspec_env => { 'RAILS_ENV' => 'foo' }     # Default: nil
 :cucumber_env => { 'RAILS_ENV' => 'bar' }  # Default: nil
-:aggressive_kill => false                 # Default: true, will search Spork pids from `ps aux` and kill them all on start.
+:aggressive_kill => false                  # Default: true, will search Spork pids from `ps aux` and kill them all on start.
+:notify_on_start => true                   # Default: false, will notify as soon as starting begins.
 ```
 
 ## Common troubleshooting

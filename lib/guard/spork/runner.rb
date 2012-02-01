@@ -22,6 +22,9 @@ module Guard
       def launch_sporks(action, type = nil)
         instances = find_instances(type)
         UI.info "#{action.capitalize}ing Spork for #{instances.join(', ')}", :reset => true
+        if options[:notify_on_start]
+          Notifier.notify "#{action.capitalize}ing #{instances.join(', ')}", :title => "Spork", :image => :success
+        end
         instances.each(&:start)
         verify_launches(action, instances)
       end
