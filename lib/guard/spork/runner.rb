@@ -94,12 +94,20 @@ module Guard
 
       def wait_for_launch(instances, wait)
         not_running = instances.dup
-        wait.times do
-          sleep 1
-          not_running.delete_if { |instance| instance.running? }
-          return true if not_running.empty?
+        if wait
+          wait.times do
+            sleep 1
+            not_running.delete_if { |instance| instance.running? }
+            return true if not_running.empty?
+          end
+          false
+        else
+          loop do
+            sleep 1
+            not_running.delete_if { |instance| instance.running? }
+            return true if not_running.empty?
+          end
         end
-        false
       end
 
       def should_use?(what)

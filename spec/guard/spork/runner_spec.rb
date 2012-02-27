@@ -251,6 +251,18 @@ describe Guard::Spork::Runner do
           runner.launch_sporks("")
         }.to throw_symbol(:task_has_failed)
       end
+
+      context "when :wait is nil" do
+        it "does not time out" do
+          runner.options[:wait] = nil
+          rspec_instance.stub(:running? => false)
+          cucumber_instance.stub(:running? => true)
+
+          expect {
+            runner.launch_sporks("")
+          }.not_to throw_symbol(:task_has_failed)
+        end
+      end
     end
 
     context "with a type specified" do
@@ -288,6 +300,18 @@ describe Guard::Spork::Runner do
         expect {
           runner.launch_sporks("", :rspec)
         }.to throw_symbol(:task_has_failed)
+      end
+
+      context "when :wait is nil" do
+        it "does not time out" do
+          runner.options[:wait] = nil
+          rspec_instance.stub(:running? => false)
+
+          cucumber_instance.should_not_receive(:running?)
+          expect {
+            runner.launch_sporks("", :rspec)
+          }.not_to throw_symbol(:task_has_failed)
+        end
       end
     end
   end
