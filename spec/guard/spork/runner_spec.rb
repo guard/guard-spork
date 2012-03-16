@@ -79,10 +79,11 @@ describe Guard::Spork::Runner do
     context "with Test::Unit only" do
       before(:each) do
         file_existance({
-          'test/test_helper.rb' => true,
-          'spec'                => false,
-          'features'            => false,
-          'Gemfile'             => false,
+          'test/test_helper.rb'     => true,
+          'spec/minispec_helper.rb' => true,
+          'spec/spec_helper.rb'     => false,
+          'features'                => false,
+          'Gemfile'                 => false,
         })
       end
 
@@ -106,10 +107,11 @@ describe Guard::Spork::Runner do
     context "with RSpec only" do
       before(:each) do
         file_existance({
-          'test/test_helper.rb' => false,
-          'spec'                => true,
-          'features'            => false,
-          'Gemfile'             => false,
+          'test/test_helper.rb'     => false,
+          'spec/minispec_helper.rb' => false,
+          'spec/spec_helper.rb'     => true,
+          'features'                => false,
+          'Gemfile'                 => false,
         })
       end
 
@@ -133,10 +135,11 @@ describe Guard::Spork::Runner do
     context "with Cucumber only" do
       before(:each) do
         file_existance({
-          'test/test_helper.rb' => false,
-          'spec'                => false,
-          'features'            => true,
-          'Gemfile'             => false,
+          'test/test_helper.rb'     => false,
+          'spec/minispec_helper.rb' => false,
+          'spec/spec_helper.rb'     => false,
+          'features'                => true,
+          'Gemfile'                 => false,
         })
       end
 
@@ -160,10 +163,11 @@ describe Guard::Spork::Runner do
     context "with RSpec, Cucumber and Bundler" do
       before(:each) do
         file_existance({
-          'test/test_helper.rb' => false,
-          'spec'                => true,
-          'features'            => true,
-          'Gemfile'             => true,
+          'test/test_helper.rb'     => false,
+          'spec/minispec_helper.rb' => false,
+          'spec/spec_helper.rb'     => true,
+          'features'                => true,
+          'Gemfile'                 => true,
         })
       end
 
