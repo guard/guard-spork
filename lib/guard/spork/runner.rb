@@ -111,11 +111,11 @@ module Guard
       end
 
       def detect_test_unit
-        File.exist?("test/test_helper.rb")
+        File.exist?("spec/minispec_helper.rb") || File.exist?("test/test_helper.rb")
       end
 
       def detect_rspec
-        File.exist?("spec")
+        File.exist?("spec/spec_helper.rb")
       end
 
       def detect_cucumber
