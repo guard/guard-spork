@@ -11,9 +11,12 @@ module Guard
         options[:test_unit_port] ||= 8988
         options[:cucumber_port]  ||= 8990
         options[:rspec_port]     ||= 8989
+        options[:minitest_port]  ||= 8988
         options[:rspec_env]      ||= {}
         options[:test_unit_env]  ||= {}
         options[:cucumber_env]   ||= {}
+        options[:minitest_env]   ||= {}
+        options[:minitest]       ||= false
         options[:aggressive_kill]  = true unless options[:aggressive_kill] == false
         @options  = options
         initialize_spork_instances
@@ -45,7 +48,7 @@ module Guard
 
       def initialize_spork_instances
         @spork_instances = []
-        [:rspec, :cucumber, :test_unit].each do |type|
+        [:rspec, :cucumber, :test_unit, :minitest].each do |type|
           port, env = options[:"#{type}_port"], options[:"#{type}_env"]
           spork_instances << SporkInstance.new(type, port, env, :bundler => should_use?(:bundler)) if should_use?(type)
         end
@@ -115,9 +118,13 @@ module Guard
       end
 
       def detect_rspec
-        File.exist?("spec")
+        File.exist?("spec") && (options[:minitest].nil? || !options[:minitest])
       end
 
+      def detect_minitest
+        File.exist?("spec/spec_helper") && (options[:rspec].nil? || !options[:rspec])
+      end
+      
       def detect_cucumber
         File.exist?("features")
       end
