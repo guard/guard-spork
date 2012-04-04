@@ -13,6 +13,7 @@ describe Guard::Spork::Runner do
     it { should include(:test_unit_port => 8988) }
     it { should include(:test_unit_env => {}) }
     it { should include(:rspec_env => {}) }
+    it { should include(:minitest => false) }
     it { should include(:cucumber_env => {}) }
     it { should include(:aggressive_kill => true) }
   end
@@ -75,6 +76,20 @@ describe Guard::Spork::Runner do
         instance.env.should == {'unit' => 'yes'}
       end
     end
+    
+    it "has a spork instance for :minitest when configured" do
+      runner = Guard::Spork::Runner.new({
+        :minitest => true,
+        :minitest_port => 2,
+        :minitest_env  => {'minitest' => 'yes'},
+      })
+
+      instance(:minitest, runner).tap do |instance|
+        instance.port.should == 2
+        instance.env.should == {'minitest' => 'yes'}
+      end
+    end
+    
 
     context "with Test::Unit only" do
       before(:each) do
@@ -100,6 +115,40 @@ describe Guard::Spork::Runner do
 
       it "does not have a spork instance for :cucumber" do
         instance(:cucumber).should be_nil
+      end
+    end
+    
+    context "with MiniTest only" do
+      before(:each) do
+        file_existance({
+          'test/test_helper.rb' => true,
+          'spec'                => true,
+          'features'            => false,
+          'Gemfile'             => false,
+        })
+        
+        @runner = Guard::Spork::Runner.new({
+          :minitest => true,
+          :minitest_port => 2,
+          :minitest_env  => {'minitest' => 'yes'},
+        })
+        
+      end
+
+      it "has a spork instance for :test_unit" do
+        instance(:minitest, @runner).should be_instance_of(Guard::Spork::SporkInstance)
+      end
+
+      it "does not have bundler enabled for the test_unit instance" do
+        instance(:minitest, @runner).options.should include(:bundler => false)
+      end
+
+      it "does not have a spork instance for :rspec" do
+        instance(:rspec, @runner).should be_nil
+      end
+
+      it "does not have a spork instance for :cucumber" do
+        instance(:cucumber, @runner).should be_nil
       end
     end
 
@@ -155,6 +204,11 @@ describe Guard::Spork::Runner do
       it "does not have a spork instance for :rspec" do
         instance(:rspec).should be_nil
       end
+      
+      it "does not have a spork instance for :minitest" do
+        instance(:minitest).should be_nil
+      end
+      
     end
 
     context "with RSpec, Cucumber and Bundler" do

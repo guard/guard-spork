@@ -122,7 +122,7 @@ module Guard
       end
 
       def detect_minitest
-        File.exist?("spec/spec_helper") && (options[:rspec].nil? || !options[:rspec])
+        false
       end
       
       def detect_cucumber

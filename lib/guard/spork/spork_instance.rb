@@ -19,7 +19,7 @@ module Guard
         when :test_unit
           "Test::Unit"
         when :minitest
-          "Minitest"
+          "MiniTest"
         else
           type.to_s
         end
