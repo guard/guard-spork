@@ -53,6 +53,23 @@ class Guard::Spork
         its(:command) { should == "bundle exec spork testunit -p 1337" }
       end
     end
+    
+    describe "minitest on port 1338" do
+      let(:options) { Hash.new }
+      subject { SporkInstance.new(:minitest, 1338, {}, options) }
+
+      its(:command) { should == "spork minitest -p 1338" }
+      its(:port) { should == 1338 }
+      its(:type) { should == :minitest }
+      its(:to_s) { should == "MiniTest" }
+
+      context "with bundler enabled" do
+        let(:options) { {:bundler => true} }
+
+        its(:command) { should == "bundle exec spork minitest -p 1338" }
+      end
+    end
+    
   end
 
   describe SporkInstance, "spawning" do
