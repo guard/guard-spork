@@ -18,6 +18,8 @@ module Guard
           "Cucumber"
         when :test_unit
           "Test::Unit"
+        when :minitest
+          "MiniTest"
         else
           type.to_s
         end
@@ -55,6 +57,8 @@ module Guard
           parts << "testunit"
         elsif type == :cucumber
           parts << "cu"
+        elsif type == :minitest
+          parts << "minitest"
         end
 
         parts << "-p #{port}"
