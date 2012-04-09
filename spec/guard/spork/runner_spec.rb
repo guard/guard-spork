@@ -76,7 +76,7 @@ describe Guard::Spork::Runner do
         instance.env.should == {'unit' => 'yes'}
       end
     end
-    
+
     it "has a spork instance for :minitest when configured" do
       runner = Guard::Spork::Runner.new({
         :minitest => true,
@@ -89,7 +89,7 @@ describe Guard::Spork::Runner do
         instance.env.should == {'minitest' => 'yes'}
       end
     end
-    
+
 
     context "with Test::Unit only" do
       before(:each) do
@@ -117,7 +117,7 @@ describe Guard::Spork::Runner do
         instance(:cucumber).should be_nil
       end
     end
-    
+
     context "with MiniTest only" do
       before(:each) do
         file_existance({
@@ -126,13 +126,13 @@ describe Guard::Spork::Runner do
           'features'            => false,
           'Gemfile'             => false,
         })
-        
+
         @runner = Guard::Spork::Runner.new({
           :minitest => true,
           :minitest_port => 2,
           :minitest_env  => {'minitest' => 'yes'},
         })
-        
+
       end
 
       it "has a spork instance for :test_unit" do
@@ -204,11 +204,11 @@ describe Guard::Spork::Runner do
       it "does not have a spork instance for :rspec" do
         instance(:rspec).should be_nil
       end
-      
+
       it "does not have a spork instance for :minitest" do
         instance(:minitest).should be_nil
       end
-      
+
     end
 
     context "with RSpec, Cucumber and Bundler" do
@@ -404,6 +404,49 @@ describe Guard::Spork::Runner do
       it "does not call #kill_pids" do
         runner.should_not_receive(:kill_pids)
         runner.kill_global_sporks
+      end
+    end
+  end
+
+  describe "#should_use?(what)" do
+    subject {runner.send(:should_use?, :what)}
+
+    context "with the detection succeeding" do
+      before(:each) { runner.stub(:detect_what => true) }
+      # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
+
+      context "with no option specified" do
+        it {should be_true}
+      end
+
+      context "with an option set to false" do
+        before(:each) {runner.options[:what] = false}
+        it {should be_false}
+      end
+
+      context "with an option set to true" do
+        before(:each) {runner.options[:what] = true}
+        it {should be_true}
+      end
+    end
+
+    context "with the detection failing" do
+      before(:each) { runner.stub(:detect_what => false) }
+
+      # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
+      subject {runner.send(:should_use?, :what)}
+      context "with no option specified" do
+        it {should be_false}
+      end
+
+      context "with an option set to false" do
+        before(:each) {runner.options[:what] = false}
+        it {should be_false}
+      end
+
+      context "with an option set to true" do
+        before(:each) {runner.options[:what] = true}
+        it {should be_true}
       end
     end
   end

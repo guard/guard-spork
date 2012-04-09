@@ -106,7 +106,7 @@ module Guard
       end
 
       def should_use?(what)
-        options[what] || send("detect_#{what}")
+        options[what].nil? ? send("detect_#{what}") : options[what]
       end
 
       def detect_bundler
