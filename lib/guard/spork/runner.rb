@@ -18,6 +18,7 @@ module Guard
         options[:minitest_env]   ||= {}
         options[:minitest]       ||= false
         options[:aggressive_kill]  = true unless options[:aggressive_kill] == false
+        options[:quiet]            = false unless options[:quiet] == true
         @options  = options
         initialize_spork_instances
       end
@@ -50,7 +51,7 @@ module Guard
         @spork_instances = []
         [:rspec, :cucumber, :test_unit, :minitest].each do |type|
           port, env = options[:"#{type}_port"], options[:"#{type}_env"]
-          spork_instances << SporkInstance.new(type, port, env, :bundler => should_use?(:bundler)) if should_use?(type)
+          spork_instances << SporkInstance.new(type, port, env, { :bundler => should_use?(:bundler), :quiet => options[:quiet] }) if should_use?(type)
         end
       end
 
