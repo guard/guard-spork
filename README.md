@@ -91,6 +91,8 @@ guard 'spork', :cucumber_env => { 'RAILS_ENV' => 'cucumber' }, :rspec_env => { '
 end
 ```
 
+If your application runs on [Heroku](http://www.heroku.com/) or otherwise uses [Foreman](https://github.com/ddollar/foreman), you can provide the `:foreman => true` option to have environment variables present in the `.env` file passed on to the Spork server.
+
 Available options:
 
 ``` ruby
@@ -107,6 +109,7 @@ Available options:
 :cucumber_env => { 'RAILS_ENV' => 'bar' }  # Default: nil
 :aggressive_kill => false                  # Default: true, will search Spork pids from `ps aux` and kill them all on start.
 :notify_on_start => true                   # Default: false, will notify as soon as starting begins.
+:foreman => true                           # Default: false, will start Spork through `foreman run` to pick up environment variables used by Foreman.
 ```
 
 ## Common troubleshooting

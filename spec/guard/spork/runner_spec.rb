@@ -16,6 +16,7 @@ describe Guard::Spork::Runner do
     it { should include(:minitest => false) }
     it { should include(:cucumber_env => {}) }
     it { should include(:aggressive_kill => true) }
+    it { should include(:foreman => false) }
   end
 
   before(:each) do
