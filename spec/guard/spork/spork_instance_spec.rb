@@ -20,6 +20,12 @@ class Guard::Spork
 
         its(:command) { should == "bundle exec spork -p 1337" }
       end
+
+      context "with foreman enabled" do
+        let(:options) { { :foreman => true, :bundler => true } }
+
+        its(:command) { should == "bundle exec foreman run spork -p 1337"}
+      end
     end
 
     describe "cucumber on port 1337" do
@@ -35,6 +41,12 @@ class Guard::Spork
         let(:options) { {:bundler => true} }
 
         its(:command) { should == "bundle exec spork cu -p 1337" }
+      end
+
+      context "with foreman enabled" do
+        let(:options) { { :foreman => true, :bundler => true } }
+
+        its(:command) { should == "bundle exec foreman run spork cu -p 1337"}
       end
     end
 
@@ -52,8 +64,14 @@ class Guard::Spork
 
         its(:command) { should == "bundle exec spork testunit -p 1337" }
       end
+
+      context "with foreman enabled" do
+        let(:options) { { :foreman => true, :bundler => true } }
+
+        its(:command) { should == "bundle exec foreman run spork testunit -p 1337"}
+      end
     end
-    
+
     describe "minitest on port 1338" do
       let(:options) { Hash.new }
       subject { SporkInstance.new(:minitest, 1338, {}, options) }
@@ -68,8 +86,14 @@ class Guard::Spork
 
         its(:command) { should == "bundle exec spork minitest -p 1338" }
       end
+
+      context "with foreman enabled" do
+        let(:options) { { :foreman => true, :bundler => true } }
+
+        its(:command) { should == "bundle exec foreman run spork minitest -p 1338"}
+      end
     end
-    
+
   end
 
   describe SporkInstance, "spawning" do
