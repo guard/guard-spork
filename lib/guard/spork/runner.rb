@@ -98,16 +98,24 @@ module Guard
 
       def wait_for_launch(instances, wait)
         not_running = instances.dup
-        wait.times do
+        wait_or_loop(wait) do
           sleep 1
           not_running.delete_if { |instance| instance.running? }
           return true if not_running.empty?
         end
-        false
       end
 
       def should_use?(what)
         options[what].nil? ? send("detect_#{what}") : options[what]
+      end
+
+      def wait_or_loop(wait)
+        if wait
+          wait.times { yield }
+        else
+          loop { yield }
+        end
+        false
       end
 
       def detect_bundler
