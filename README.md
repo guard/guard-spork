@@ -110,6 +110,7 @@ Available options:
 :aggressive_kill => false                  # Default: true, will search Spork pids from `ps aux` and kill them all on start.
 :notify_on_start => true                   # Default: false, will notify as soon as starting begins.
 :foreman => true                           # Default: false, will start Spork through `foreman run` to pick up environment variables used by Foreman.
+:quiet => true                             # Default: false, will silence some of the debugging output which can get repetitive
 ```
 
 ## Common troubleshooting
