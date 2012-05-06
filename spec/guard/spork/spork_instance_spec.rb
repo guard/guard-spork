@@ -26,6 +26,12 @@ class Guard::Spork
 
         its(:command) { should == "bundle exec foreman run spork -p 1337"}
       end
+      
+      context "with quiet enabled" do
+        let(:options) { { :quiet => true } }
+
+        its(:command) { should == "run spork -p 1337 --quiet"}
+      end      
     end
 
     describe "cucumber on port 1337" do

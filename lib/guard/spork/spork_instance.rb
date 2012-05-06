@@ -63,6 +63,7 @@ module Guard
         end
 
         parts << "-p #{port}"
+        parts << "-q" if options[:quiet]
         parts.join(" ")
       end
 
