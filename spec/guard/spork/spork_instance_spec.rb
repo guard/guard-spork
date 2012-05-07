@@ -154,9 +154,9 @@ class Guard::Spork
     end
 
     describe "#stop" do
-      it "kills the pid" do
+      it "kills the pid using SIGTERM" do
         instance.stub(:pid => 42)
-        Process.should_receive(:kill).with('KILL', 42)
+        Process.should_receive(:kill).with('TERM', 42)
         instance.stop
       end
     end
