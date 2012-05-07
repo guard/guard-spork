@@ -32,7 +32,7 @@ module Guard
       end
 
       def stop
-        ::Process.kill('KILL', pid)
+        ::Process.kill('TERM', pid)
       end
 
       def alive?
