@@ -30,7 +30,7 @@ class Guard::Spork
       context "with quiet enabled" do
         let(:options) { { :quiet => true } }
 
-        its(:command) { should == "run spork -p 1337 --quiet"}
+        its(:command) { should == "spork -p 1337 -q"}
       end      
     end
 
