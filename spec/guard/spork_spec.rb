@@ -30,12 +30,12 @@ describe Guard::Spork do
     end
   end
 
-  describe "#run_on_change" do
+  describe "#run_on_changes" do
     context "with files" do
       it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
         runner.should_receive(:kill_sporks)
         runner.should_receive(:launch_sporks).with("reload")
-        subject.run_on_change(["spec/spec_helper.rb"])
+        subject.run_on_changes(["spec/spec_helper.rb"])
       end
     end
 
@@ -43,7 +43,7 @@ describe Guard::Spork do
       it "restarts the spork instance matching the symbol" do
         runner.should_receive(:kill_sporks).with(:symbol)
         runner.should_receive(:launch_sporks).with("reload", :symbol)
-        subject.run_on_change(:symbol)
+        subject.run_on_changes(:symbol)
       end
     end
   end
