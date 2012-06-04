@@ -3,6 +3,7 @@ pkg/*
 .bundle
 Gemfile.lock
 .rvmrc
+.rbx
 
 ## MAC OS
 .DS_Store
