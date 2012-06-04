@@ -16,12 +16,12 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project         = 'guard-spork'
 
-  s.add_dependency 'guard', '>= 0.10.0'
+  s.add_dependency 'guard', '>= 1.0.0'
   s.add_dependency 'spork', '>= 0.8.4'
 
   s.add_development_dependency 'bundler',     '~> 1.0'
-  s.add_development_dependency 'rspec',       '~> 2.6'
-  s.add_development_dependency 'guard-rspec', '~> 0.4'
+  s.add_development_dependency 'rspec',       '~> 2.10'
+  s.add_development_dependency 'guard-rspec', '~> 1.0'
 
   s.files        = Dir.glob('{lib}/**/*') + %w[LICENSE README.md]
   s.require_path = 'lib'
