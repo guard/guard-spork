@@ -100,6 +100,7 @@ Available options:
 :cucumber => false
 :rspec => false
 :test_unit => false
+:minitest => false
 :bundler => false                          # Don't use "bundle exec"
 :test_unit_port => 1233                    # Default: 8988
 :rspec_port => 1234                        # Default: 8989
