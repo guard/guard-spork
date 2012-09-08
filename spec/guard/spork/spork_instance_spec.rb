@@ -105,58 +105,48 @@ class Guard::Spork
   describe SporkInstance, "spawning" do
     let(:instance) { SporkInstance.new(:test, 1, {}, {}) }
     before(:each) do
-      instance.stub(:command => "", :exec => nil, :fork => nil)
-    end
-
-    describe "#env_exec(env, command)" do
-      # This behaves differently under Ruby 1.9 and 1.8
-      # Make sure to run the suite under both environments
-      if RUBY_VERSION > "1.9"
-        it "delegates to native #exec" do
-          instance.should_receive(:exec).with("env", "command")
-          instance.env_exec("env", "command")
-        end
-      else
-        around(:each) do |example|
-          ENV['FOO'] = 'original foo'
-          ENV['BAR'] = 'original bar'
-          example.run
-          ENV.delete('FOO')
-          ENV.delete('BAR')
-        end
-
-        it "replaces the current process with the command under given environment" do
-          instance.should_receive(:exec).with("command").and_return {
-            ENV['FOO'].should == 'new foo'
-            ENV['BAR'].should == 'original bar'
-          }
-          instance.env_exec({'FOO' => 'new foo'}, "command")
-        end
-      end
+      instance.stub(:command => "")
     end
 
     describe "#start" do
       after(:each) { ENV.delete('SPORK_PIDS') }
 
-      it "forks and stores the pid" do
-        instance.should_receive(:fork).and_return("a pid")
+      it "uses ChildProcess and stores the pid" do
+        process = double("process").as_null_object
+        ChildProcess.should_receive(:build).and_return(process)
+        process.stub(:pid => "a pid")
         expect {
           instance.start
         }.to change(instance, :pid).from(nil).to("a pid")
       end
 
-      it "execs the command with the env in the fork" do
-        instance.stub(:command => "command", :env => "environment")
-        instance.should_receive(:fork).and_yield
-        instance.should_receive(:env_exec).with("environment", "command")
+      it "passes environment to the ChildProcess" do
+        instance.stub(:command => "command", :env => {:environment => true})
+        process = double("process").as_null_object
+        ChildProcess.should_receive(:build).and_return(process)
+        process_env = {}
+        process.should_receive(:environment).and_return(process_env)
+        process_env.should_receive(:merge!).with(:environment => true)
         instance.start
       end
     end
 
     describe "#stop" do
-      it "kills the pid using SIGTERM" do
-        instance.stub(:pid => 42)
-        Process.should_receive(:kill).with('TERM', 42)
+      it "delegates to ChildProcess#stop", :unless => SporkInstance.windows? do
+        process = double("a process")
+        instance.stub(:process).and_return(process)
+        process.should_receive(:stop)
+        instance.stop
+      end
+
+      it "kills all child processes manually on Windows", :if => SporkInstance.windows? do
+        instance.should_receive(:pid).and_return("a pid")
+        instance.should_receive(:all_pids_for).with("a pid").and_return(["a pid", 22, 33, 44])
+        Process.should_receive(:kill).with(9, "a pid")
+        Process.should_receive(:kill).with(9, 22)
+        Process.should_receive(:kill).with(9, 33)
+        Process.should_receive(:kill).with(9, 44)
+
         instance.stop
       end
     end
@@ -165,7 +155,6 @@ class Guard::Spork
       subject { instance }
       before(:each) do
         instance.stub(:pid => nil)
-        Process.stub(:waitpid => nil)
       end
 
       context "when no pid is set" do
@@ -175,7 +164,9 @@ class Guard::Spork
       context "when the pid is a running process" do
         before(:each) do
           instance.stub(:pid => 42)
-          Process.should_receive(:waitpid).with(42, Process::WNOHANG).and_return(nil)
+          process = double("a process")
+          instance.stub(:process => process)
+          process.stub(:alive? => true)
         end
 
         it { should be_alive }
@@ -185,7 +176,9 @@ class Guard::Spork
         subject { instance }
         before(:each) do
           instance.stub(:pid => 42)
-          Process.should_receive(:waitpid).with(42, Process::WNOHANG).and_return(42)
+          process = double("a process")
+          instance.stub(:process => process)
+          process.stub(:alive? => false)
         end
 
         it { should_not be_alive }
@@ -206,13 +199,26 @@ class Guard::Spork
         it { should_not be_running }
       end
 
+      context "when process is not alive" do
+        before(:each) { instance.stub(:alive? => false)}
+        it { should_not be_running }
+      end
+
       context "when spork does not respond" do
-        before(:each) { TCPSocket.should_receive(:new).with('localhost', 1337).and_raise(Errno::ECONNREFUSED) }
+        before(:each) do
+          TCPSocket.should_receive(:new).with('localhost', 1337).and_raise(Errno::ECONNREFUSED)
+          instance.stub(:alive? => true)
+        end
+
         it { should_not be_running }
       end
 
       context "when spork accepts the connection" do
-        before(:each) { TCPSocket.should_receive(:new).with('localhost', 1337).and_return(socket) }
+        before(:each) do
+          TCPSocket.should_receive(:new).with('localhost', 1337).and_return(socket)
+          instance.stub(:alive? => true)
+        end
+
         it { should be_running }
       end
     end

@@ -1,5 +1,8 @@
 require 'guard'
 require 'guard/guard'
+require 'sys/proctable'
+require 'childprocess'
+require 'rinda/ring'
 
 module Guard
   class Spork < Guard
