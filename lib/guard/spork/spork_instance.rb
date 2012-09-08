@@ -112,8 +112,13 @@ module Guard
 
       def running_on_windows?
         DRb.start_service
+        # make sure that ringfinger is not taken from cache, because it won't
+        # work after guard-spork has been restarted
+        Rinda::RingFinger.class_variable_set :@@finger, nil
         ts = Rinda::RingFinger.primary
-        size = ts.read_all([:name, :MagazineSlave, nil, nil]).size > 0
+        ts.read_all([:name, :MagazineSlave, nil, nil]).size > 0
+      rescue DRb::DRbConnError
+        false
       end
 
     end
