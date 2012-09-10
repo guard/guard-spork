@@ -411,7 +411,7 @@ describe Guard::Spork::Runner do
         runner.kill_global_sporks
       end
 
-      it "calls a KILL command for each Spork server running on the system" do
+      it "calls a KILL command for each Spork server running on the system", :unless => Guard::Spork::SporkInstance.windows? do
         # This is pretty hard to stub right now. We're hardcoding the command here
         runner.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
         runner.should_receive(:`).with("ps aux | awk '/spork/&&!/awk/{print $2;}'").and_return("666\n999")

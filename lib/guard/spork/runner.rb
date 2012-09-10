@@ -62,7 +62,17 @@ module Guard
       end
 
       def ps_spork_pids
-        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        unless SporkInstance.windows?
+          `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        else
+          Sys::ProcTable.ps.reduce([]) do |spork_pids, process|
+            spork_process = process.cmdline =~ /spork/ || 
+                            process.cmdline =~ /ring_server/ || 
+                            process.cmdline =~ /magazine_slave_provider/
+            spork_pids << process.pid if spork_process
+            spork_pids
+          end
+        end
       end
 
       def find_instances(type = nil)
