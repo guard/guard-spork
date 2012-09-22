@@ -26,7 +26,7 @@ module Guard
       end
 
       def start
-				cmd = [command]
+				cmd = command
 
         ::Guard::UI.debug "guard-spork command execution: #{cmd}"
 
