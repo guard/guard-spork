@@ -10,7 +10,7 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:rspec, 1337, {}, options) }
 
-      its(:command) { should == "spork -p 1337" }
+      its(:command) { should == %w{spork -p 1337} }
       its(:port) { should == 1337 }
       its(:type) { should == :rspec }
       its(:to_s) { should == "RSpec" }
@@ -18,19 +18,19 @@ class Guard::Spork
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == "bundle exec spork -p 1337" }
+        its(:command) { should == %w{bundle exec spork -p 1337} }
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == "bundle exec foreman run spork -p 1337"}
+        its(:command) { should == %w{bundle exec foreman run spork -p 1337} }
       end
       
       context "with quiet enabled" do
         let(:options) { { :quiet => true } }
 
-        its(:command) { should == "spork -p 1337 -q"}
+        its(:command) { should == %w{spork -p 1337 -q} }
       end      
     end
 
@@ -38,7 +38,7 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:cucumber, 1337, {}, options) }
 
-      its(:command) { should == "spork cu -p 1337" }
+      its(:command) { should == %w{spork cu -p 1337} }
       its(:port) { should == 1337 }
       its(:type) { should == :cucumber }
       its(:to_s) { should == "Cucumber" }
@@ -46,13 +46,13 @@ class Guard::Spork
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == "bundle exec spork cu -p 1337" }
+        its(:command) { should == %w{bundle exec spork cu -p 1337} }
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == "bundle exec foreman run spork cu -p 1337"}
+        its(:command) { should == %w{bundle exec foreman run spork cu -p 1337} }
       end
     end
 
@@ -60,7 +60,7 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:test_unit, 1337, {}, options) }
 
-      its(:command) { should == "spork testunit -p 1337" }
+      its(:command) { should == %w{spork testunit -p 1337} }
       its(:port) { should == 1337 }
       its(:type) { should == :test_unit }
       its(:to_s) { should == "Test::Unit" }
@@ -68,13 +68,13 @@ class Guard::Spork
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == "bundle exec spork testunit -p 1337" }
+        its(:command) { should == %w{bundle exec spork testunit -p 1337} }
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == "bundle exec foreman run spork testunit -p 1337"}
+        its(:command) { should == %w{bundle exec foreman run spork testunit -p 1337} }
       end
     end
 
@@ -82,7 +82,7 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:minitest, 1338, {}, options) }
 
-      its(:command) { should == "spork minitest -p 1338" }
+      its(:command) { should == %w{spork minitest -p 1338} }
       its(:port) { should == 1338 }
       its(:type) { should == :minitest }
       its(:to_s) { should == "MiniTest" }
@@ -90,13 +90,13 @@ class Guard::Spork
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == "bundle exec spork minitest -p 1338" }
+        its(:command) { should == %w{bundle exec spork minitest -p 1338} }
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == "bundle exec foreman run spork minitest -p 1338"}
+        its(:command) { should == %w{bundle exec foreman run spork minitest -p 1338}}
       end
     end
 

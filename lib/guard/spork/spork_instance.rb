@@ -26,7 +26,7 @@ module Guard
       end
 
       def start
-        cmd = command
+				cmd = [command]
 
         ::Guard::UI.debug "guard-spork command execution: #{cmd}"
 
@@ -73,9 +73,10 @@ module Guard
           parts << "minitest"
         end
 
-        parts << "-p #{port}"
+        parts << "-p"
+			 	parts <<	port.to_s
         parts << "-q" if options[:quiet]
-        parts.join(" ")
+        parts
       end
 
       def self.spork_pids
