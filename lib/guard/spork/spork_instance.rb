@@ -55,8 +55,14 @@ module Guard
 
       def command
         parts = []
-        parts << "bundle exec" if use_bundler?
-        parts << "foreman run" if use_foreman?
+				if use_bundler? 
+					parts << "bundle"
+					parts << "exec"
+				end
+				if use_foreman?
+					parts << "foreman"
+					parts << "run"
+				end
         parts << "spork"
 
         if type == :test_unit
