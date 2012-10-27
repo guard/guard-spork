@@ -3,6 +3,7 @@ require 'guard/guard'
 require 'sys/proctable'
 require 'childprocess'
 require 'rinda/ring'
+require 'guard/spork/rinda_ring_finger_patch'
 
 module Guard
   class Spork < Guard
