@@ -117,7 +117,7 @@ module Guard
         Rinda::RingFinger.class_variable_set :@@finger, nil
         ts = Rinda::RingFinger.primary
         ts.read_all([:name, :MagazineSlave, nil, nil]).size > 0
-      rescue DRb::DRbConnError
+      rescue
         false
       end
 
