@@ -32,8 +32,10 @@ module Guard
           cmd = ["cmd", "/C"] + cmd
         end
 
+        ::Guard::UI.debug "guard-spork command execution: #{cmd}"
+
         @process = ChildProcess.build *cmd
-        @process.environment.merge!(env)
+        @process.environment.merge!(env) unless env.empty?
         @process.io.inherit!
         @process.start
         @pid = @process.pid

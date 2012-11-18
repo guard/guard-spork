@@ -1,5 +1,5 @@
 module Guard
   module SporkVersion
-    VERSION = "1.1.0"
+    VERSION = "1.2.3"
   end
 end
