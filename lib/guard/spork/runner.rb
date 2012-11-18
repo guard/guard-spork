@@ -58,20 +58,14 @@ module Guard
 
       def kill_pids(pids)
         UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
-        pids.each { |pid| ::Process.kill("KILL", pid) }
+        pids.each { |pid| ::Process.kill("KILL", pid) rescue nil }
       end
 
       def ps_spork_pids
         unless SporkInstance.windows?
           `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
         else
-          Sys::ProcTable.ps.reduce([]) do |spork_pids, process|
-            spork_process = process.cmdline =~ /spork/ || 
-                            process.cmdline =~ /ring_server/ || 
-                            process.cmdline =~ /magazine_slave_provider/
-            spork_pids << process.pid if spork_process
-            spork_pids
-          end
+          SporkInstance.spork_processes_on_windows.map { |process| process[:pid] }
         end
       end
 
