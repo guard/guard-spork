@@ -19,7 +19,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'guard', '>= 1.1'
   s.add_dependency 'spork', '>= 0.8.4'
   s.add_dependency 'childprocess'
-  s.add_dependency 'sys-proctable'
 
   s.add_development_dependency 'bundler',     '~> 1.0'
   s.add_development_dependency 'rspec',       '~> 2.10'
