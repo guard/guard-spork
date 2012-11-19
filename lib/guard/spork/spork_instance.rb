@@ -89,16 +89,10 @@ module Guard
       end
 
       def self.spork_processes_on_windows
-        result = `wmic process where "commandline like '%spork%' or commandline like '%ring_server%' or commandline like '%magazine_slave_provider%'" get commandline,handle,parentprocessid` 
-        lines = result.lines.map &:strip
-        header = lines.shift
-        column_sizes = header.scan(/\w+\s*/).map { |part| part.size }
-        cmdline_position = 0..(column_sizes[0] - 1)
-        pid_position = column_sizes[0]..(column_sizes[0] + column_sizes[1] - 1)
-        ppid_position = (column_sizes[0] + column_sizes[1])..-1
-        lines[1..-1].map do |line|
-          cmdline, pid, ppid = line[cmdline_position], line[pid_position], line[ppid_position]
-          {:cmdline => cmdline.strip, :pid => pid.to_i, :ppid => ppid.to_i} if pid
+        result = `wmic process where "commandline like '%spork%' or commandline like '%ring_server%' or commandline like '%magazine_slave_provider%'" get handle,parentprocessid` 
+        result.lines.map do |line|
+          pid, ppid = line.strip.scan(/(\d+)\s+(\d+)$/).flatten
+          {:pid => pid.to_i, :ppid => ppid.to_i} if pid
         end.compact
       end
 
