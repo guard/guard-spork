@@ -1,14 +1,13 @@
 require 'guard'
 require 'guard/guard'
 require 'childprocess'
-require 'rinda/ring'
-require 'guard/spork/rinda_ring_finger_patch'
 
 module Guard
   class Spork < Guard
 
     autoload :Runner, 'guard/spork/runner'
     autoload :SporkInstance, 'guard/spork/spork_instance'
+    autoload :SporkWindowsInstance, 'guard/spork/spork_windows_instance'
     attr_accessor :runner
 
     def initialize(watchers=[], options={})

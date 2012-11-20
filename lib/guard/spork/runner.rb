@@ -42,8 +42,12 @@ module Guard
 
       def kill_global_sporks
         if options[:aggressive_kill]
-          kill_pids ps_spork_pids
+          kill_pids self.class.spork_instance_class.spork_pids
         end
+      end
+
+      def self.windows?
+        ENV['OS'] == 'Windows_NT'
       end
 
     private
@@ -52,21 +56,17 @@ module Guard
         @spork_instances = []
         [:rspec, :cucumber, :test_unit, :minitest].each do |type|
           port, env = options[:"#{type}_port"], options[:"#{type}_env"]
-          spork_instances << SporkInstance.new(type, port, env, :bundler => should_use?(:bundler), :foreman => should_use?(:foreman), :quiet => should_use?(:quiet)) if should_use?(type)
+          spork_instances << self.class.spork_instance_class.new(type, port, env, :bundler => should_use?(:bundler), :foreman => should_use?(:foreman), :quiet => should_use?(:quiet)) if should_use?(type)
         end
+      end
+
+      def self.spork_instance_class
+        windows? ? SporkWindowsInstance : SporkInstance
       end
 
       def kill_pids(pids)
         UI.debug "Killing Spork servers with PID: #{pids.join(', ')}"
         pids.each { |pid| ::Process.kill("KILL", pid) rescue nil }
-      end
-
-      def ps_spork_pids
-        unless SporkInstance.windows?
-          `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
-        else
-          SporkInstance.spork_processes_on_windows.map { |process| process[:pid] }
-        end
       end
 
       def find_instances(type = nil)
@@ -146,6 +146,7 @@ module Guard
       def detect_foreman
         File.exist?("Procfile")
       end
+
     end
   end
 end
