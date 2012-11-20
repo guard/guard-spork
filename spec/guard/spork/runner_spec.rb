@@ -40,6 +40,10 @@ describe Guard::Spork::Runner do
       runner.spork_instances.find { |instance| instance.type == type }
     end
 
+    def spork_instance_class
+      Guard::Spork::Runner.send :spork_instance_class
+    end
+
     it "has a spork instance for :rspec when configured" do
       runner = Guard::Spork::Runner.new({
         :rspec => true,
@@ -104,7 +108,7 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :test_unit" do
-        instance(:test_unit).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:test_unit).should be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the test_unit instance" do
@@ -138,7 +142,7 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :test_unit" do
-        instance(:minitest, @runner).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:minitest, @runner).should be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the test_unit instance" do
@@ -165,7 +169,7 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        instance(:rspec).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:rspec).should be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the rspec instance" do
@@ -192,7 +196,7 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :cucumber" do
-        instance(:cucumber).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:cucumber).should be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the cucumber instance" do
@@ -224,11 +228,11 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        instance(:rspec).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:rspec).should be_instance_of(spork_instance_class)
       end
 
       it "has a spork instance for :cucumber" do
-        instance(:cucumber).should be_instance_of(Guard::Spork::SporkInstance)
+        instance(:cucumber).should be_instance_of(spork_instance_class)
       end
 
       it "has bundler enabled for the rspec instance" do
@@ -241,6 +245,24 @@ describe Guard::Spork::Runner do
 
       it "does not have a spork instance for :test_unit" do
         instance(:test_unit).should be_nil
+      end
+    end
+
+    context ".windows?" do
+      describe Guard::Spork::SporkInstance do
+        before { runner.class.stub(:windows? => false) }
+
+        it "is created when not Windows OS is used" do
+          instance(:rspec, Guard::Spork::Runner.new).should be_instance_of(Guard::Spork::SporkInstance)
+        end
+      end
+
+      describe Guard::Spork::SporkWindowsInstance do
+        before { runner.class.stub(:windows? => true) }
+
+        it "is created when Windows OS is used" do
+          instance(:rspec, Guard::Spork::Runner.new).should be_instance_of(Guard::Spork::SporkWindowsInstance)
+        end
       end
     end
   end
@@ -411,10 +433,8 @@ describe Guard::Spork::Runner do
         runner.kill_global_sporks
       end
 
-      it "calls a KILL command for each Spork server running on the system", :unless => Guard::Spork::SporkInstance.windows? do
-        # This is pretty hard to stub right now. We're hardcoding the command here
-        runner.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
-        runner.should_receive(:`).with("ps aux | awk '/spork/&&!/awk/{print $2;}'").and_return("666\n999")
+      it "calls a KILL command for each Spork server running on the system" do
+        runner.class.spork_instance_class.should_receive(:spork_pids).and_return([666, 999])
 
         Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
         Process.should_receive(:kill).with('KILL', 666)

@@ -26,11 +26,7 @@ module Guard
       end
 
       def start
-        cmd = [command]
-
-        if self.class.windows?
-          cmd = ["cmd", "/C"] + cmd
-        end
+        cmd = command
 
         ::Guard::UI.debug "guard-spork command execution: #{cmd}"
 
@@ -42,11 +38,7 @@ module Guard
       end
 
       def stop
-        unless self.class.windows?
-          process.stop
-        else
-          kill_all_child_processes
-        end
+        process.stop
       end
 
       def alive?
@@ -56,11 +48,7 @@ module Guard
       def running?
         return false unless alive?
         TCPSocket.new('localhost', port).close
-        if self.class.windows?
-          running_on_windows?
-        else
-          true
-        end
+        true
       rescue Errno::ECONNREFUSED
         false
       end
@@ -84,16 +72,8 @@ module Guard
         parts.join(" ")
       end
 
-      def self.windows?
-        RUBY_PLATFORM =~ /mswin|msys|mingw/
-      end
-
-      def self.spork_processes_on_windows
-        result = `wmic process where "commandline like '%spork%' or commandline like '%ring_server%' or commandline like '%magazine_slave_provider%'" get handle,parentprocessid` 
-        result.lines.map do |line|
-          pid, ppid = line.strip.scan(/(\d+)\s+(\d+)$/).flatten
-          {:pid => pid.to_i, :ppid => ppid.to_i} if pid
-        end.compact
+      def self.spork_pids
+        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
 
     private
@@ -104,30 +84,6 @@ module Guard
 
       def use_foreman?
         options[:foreman]
-      end
-
-      def kill_all_child_processes
-        all_pids_for(pid, self.class.spork_processes_on_windows).each do |pid|
-          Process.kill 9, pid rescue nil
-        end
-      end
-
-      def all_pids_for(parent_pid, processes)
-        processes.inject([parent_pid]) do |memo, process|
-          memo += all_pids_for(process[:pid], processes) if process[:ppid] == parent_pid
-          memo
-        end
-      end
-
-      def running_on_windows?
-        DRb.start_service
-        # make sure that ringfinger is not taken from cache, because it won't
-        # work after guard-spork has been restarted
-        Rinda::RingFinger.class_variable_set :@@finger, nil
-        ts = Rinda::RingFinger.primary
-        ts.read_all([:name, :MagazineSlave, nil, nil]).size > 0
-      rescue
-        false
       end
 
     end
