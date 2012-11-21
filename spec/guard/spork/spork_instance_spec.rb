@@ -132,21 +132,10 @@ class Guard::Spork
     end
 
     describe "#stop" do
-      it "delegates to ChildProcess#stop", :unless => SporkInstance.windows? do
+      it "delegates to ChildProcess#stop" do
         process = double("a process")
         instance.stub(:process).and_return(process)
         process.should_receive(:stop)
-        instance.stop
-      end
-
-      it "kills all child processes manually on Windows", :if => SporkInstance.windows? do
-        instance.should_receive(:pid).and_return("a pid")
-        instance.should_receive(:all_pids_for).with("a pid").and_return(["a pid", 22, 33, 44])
-        Process.should_receive(:kill).with(9, "a pid")
-        Process.should_receive(:kill).with(9, 22)
-        Process.should_receive(:kill).with(9, 33)
-        Process.should_receive(:kill).with(9, 44)
-
         instance.stop
       end
     end
@@ -222,5 +211,17 @@ class Guard::Spork
         it { should be_running }
       end
     end
+
+    describe ".spork_pids" do
+      it "returns all the pids belonging to spork" do
+        instance.class.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
+        instance.class.should_receive(:`).
+          with(%q[ps aux | awk '/spork/&&!/awk/{print $2;}']).
+          and_return("666\n999")
+
+        instance.class.spork_pids.should == [666, 999]
+      end
+    end
+
   end
 end
