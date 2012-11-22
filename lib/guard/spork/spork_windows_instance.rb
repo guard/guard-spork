@@ -47,11 +47,14 @@ module Guard
       end
 
       def self.spork_processes
-        result = `wmic process where "commandline like '%spork%' or commandline like '%ring_server%' or commandline like '%magazine_slave_provider%'" get handle,parentprocessid` 
-        result.lines.map do |line|
-          pid, ppid = line.strip.scan(/(\d+)\s+(\d+)$/).flatten
-          {:pid => pid.to_i, :ppid => ppid.to_i} if pid
-        end.compact
+        require "win32ole"
+        WIN32OLE.connect("winmgmts://.").InstancesOf("win32_process").
+          each.
+          select do |p| 
+            p.commandline =~ /spork|ring_server|magazine_slave_provider/ && 
+              File.basename(p.executablepath, File.extname(p.executablepath)) =~ /^(cmd|ruby)$/i
+          end.
+          map { |p| {:pid => p.processid, :ppid => p.parentprocessid} }
       end
 
     end
