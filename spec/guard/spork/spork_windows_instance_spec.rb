@@ -6,7 +6,7 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkWindowsInstance.new(:rspec, 1337, {}, options) }
 
-      its(:command) { should == ["cmd", "/C", "spork -p 1337"] }
+      its(:command) { should == %w{cmd /C spork -p 1337} } 
     end
   end
 

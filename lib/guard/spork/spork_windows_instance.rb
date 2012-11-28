@@ -5,7 +5,7 @@ module Guard
   class Spork
     class SporkWindowsInstance < SporkInstance
       def command
-        ["cmd", "/C"] << super
+        ["cmd", "/C"] + super
       end
 
       def stop
