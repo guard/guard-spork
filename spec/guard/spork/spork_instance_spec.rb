@@ -54,6 +54,12 @@ class Guard::Spork
 
         its(:command) { should == %w{bundle exec foreman run spork cu -p 1337} }
       end
+
+      context "with foreman enabled and env name option" do
+        let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
+
+        its(:command) { should == %w{bundle exec foreman run -e=.env.test spork cu -p 1337}}
+      end
     end
 
     describe "test_unit on port 1337" do
@@ -76,6 +82,12 @@ class Guard::Spork
 
         its(:command) { should == %w{bundle exec foreman run spork testunit -p 1337} }
       end
+
+      context "with foreman enabled and env name option" do
+        let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
+
+        its(:command) { should == %w{bundle exec foreman run -e=.env.test spork testunit -p 1337}}
+      end
     end
 
     describe "minitest on port 1338" do
@@ -97,6 +109,12 @@ class Guard::Spork
         let(:options) { { :foreman => true, :bundler => true } }
 
         its(:command) { should == %w{bundle exec foreman run spork minitest -p 1338}}
+      end
+
+      context "with foreman enabled and env name option" do
+        let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
+
+        its(:command) { should == %w{bundle exec foreman run -e=.env.test spork minitest -p 1338}}
       end
     end
 
