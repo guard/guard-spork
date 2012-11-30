@@ -62,6 +62,7 @@ module Guard
 				if use_foreman?
 					parts << "foreman"
 					parts << "run"
+          parts << "-e=#{options[:foreman].fetch(:env, '.env')}" if foreman_options?
 				end
         parts << "spork"
 
@@ -91,6 +92,10 @@ module Guard
 
       def use_foreman?
         options[:foreman]
+      end
+
+      def foreman_options?
+        options[:foreman].is_a?(Hash)
       end
 
     end
