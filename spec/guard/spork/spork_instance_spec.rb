@@ -26,12 +26,12 @@ class Guard::Spork
 
         its(:command) { should == %w{bundle exec foreman run spork -p 1337} }
       end
-      
+
       context "with quiet enabled" do
         let(:options) { { :quiet => true } }
 
         its(:command) { should == %w{spork -p 1337 -q} }
-      end      
+      end
     end
 
     describe "cucumber on port 1337" do
@@ -234,7 +234,7 @@ class Guard::Spork
       it "returns all the pids belonging to spork" do
         instance.class.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
         instance.class.should_receive(:`).
-          with(%q[ps aux | awk '/spork/&&!/awk/{print $2;}']).
+          with(%q[ps aux | grep -v guard | awk '/spork/&&!/awk/{print $2;}']).
           and_return("666\n999")
 
         instance.class.spork_pids.should == [666, 999]

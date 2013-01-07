@@ -1,3 +1,5 @@
+require 'socket'
+
 module Guard
   class Spork
     class SporkInstance
@@ -55,7 +57,7 @@ module Guard
 
       def command
         parts = []
-				if use_bundler? 
+				if use_bundler?
 					parts << "bundle"
 					parts << "exec"
 				end
@@ -81,7 +83,7 @@ module Guard
       end
 
       def self.spork_pids
-        `ps aux | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
+        `ps aux | grep -v guard | awk '/spork/&&!/awk/{print $2;}'`.split("\n").map { |pid| pid.to_i }
       end
 
     private
