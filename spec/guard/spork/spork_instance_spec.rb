@@ -213,7 +213,7 @@ class Guard::Spork
 
       context "when spork does not respond" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('localhost', 1337).and_raise(Errno::ECONNREFUSED)
+          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_raise(Errno::ECONNREFUSED)
           instance.stub(:alive? => true)
         end
 
@@ -222,7 +222,7 @@ class Guard::Spork
 
       context "when spork accepts the connection" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('localhost', 1337).and_return(socket)
+          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
         end
 
