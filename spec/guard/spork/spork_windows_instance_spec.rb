@@ -39,7 +39,7 @@ class Guard::Spork
 
       context "when spork accepts the connection and DRb is not ready" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('localhost', 1337).and_return(socket)
+          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
           instance.stub(:drb_ready? => false)
         end
@@ -49,7 +49,7 @@ class Guard::Spork
 
       context "when spork accepts the connection and DRb is ready" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('localhost', 1337).and_return(socket)
+          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
           instance.stub(:drb_ready? => true)
         end
