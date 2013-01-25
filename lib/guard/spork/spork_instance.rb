@@ -49,7 +49,7 @@ module Guard
 
       def running?
         return false unless alive?
-        TCPSocket.new('localhost', port).close
+        TCPSocket.new('127.0.0.1', port).close
         true
       rescue Errno::ECONNREFUSED
         false
