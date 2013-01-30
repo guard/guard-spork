@@ -28,11 +28,11 @@ module Guard
       end
 
       def start
-				cmd = command
+        executable, *cmd = command
 
         ::Guard::UI.debug "guard-spork command execution: #{cmd}"
 
-        @process = ChildProcess.build *cmd
+        @process = ChildProcess.build(executable, *cmd)
         @process.environment.merge!(env) unless env.empty?
         @process.io.inherit!
         @process.start
