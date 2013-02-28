@@ -1,4 +1,4 @@
-** Guard::Spork is looking for a new maintainer, please contact me at <thibaud@thibau.me>. **
+*** Guard::Spork is looking for a new maintainer, please contact me at <thibaud@thibaud.me>. ***
 
 # Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spork)
 
