@@ -1,3 +1,5 @@
+** Guard::Spork is looking for a new maintainer, please contact me at <thibaud@thibau.me>. **
+
 # Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spork)
 
 Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber/Test::Unit [Spork](https://github.com/sporkrb/spork) server(s).
