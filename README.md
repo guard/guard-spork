@@ -99,6 +99,7 @@ Available options:
 
 ``` ruby
 :wait => 60                                # Seconds to wait for the server to start, default: 30. Setting it to nil will cause it to wait indefinitely.
+:retry_delay => 60                         # Seconds to wait before retrying booting the server, default: 30. Setting it to nil will cause it to wait indefinitely.
 :cucumber => false
 :rspec => false
 :test_unit => false

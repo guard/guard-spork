@@ -330,6 +330,18 @@ describe Guard::Spork::Runner do
         }.to throw_symbol(:task_has_failed)
       end
 
+      it "does not wait longer than the configured wait duration + retry_delay" do
+        runner.options[:wait] = 7
+        runner.options[:retry_delay] = 10
+        runner.should_receive(:sleep).with(1).exactly(17).times
+        rspec_instance.stub(:running? => false)
+        cucumber_instance.stub(:running? => true)
+
+        expect {
+          runner.launch_sporks("")
+        }.to throw_symbol(:task_has_failed)
+      end
+
       context "when :wait is nil" do
         it "does not time out" do
           runner.options[:wait] = nil
@@ -372,6 +384,19 @@ describe Guard::Spork::Runner do
       it "does not wait longer than the configured wait duration + 60" do
         runner.options[:wait] = 7
         runner.should_receive(:sleep).with(1).exactly(67).times
+        rspec_instance.stub(:running? => false)
+
+        cucumber_instance.should_not_receive(:running?)
+        expect {
+          runner.launch_sporks("", :rspec)
+        }.to throw_symbol(:task_has_failed)
+      end
+
+      # This behavior is a bit weird, isn't it?
+      it "does not wait longer than the configured wait duration + retry_delay" do
+        runner.options[:wait] = 7
+        runner.options[:retry_delay] = 10
+        runner.should_receive(:sleep).with(1).exactly(17).times
         rspec_instance.stub(:running? => false)
 
         cucumber_instance.should_not_receive(:running?)

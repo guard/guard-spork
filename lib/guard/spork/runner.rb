@@ -8,6 +8,7 @@ module Guard
 
       def initialize(options={})
         options[:wait]           ||= 30 # seconds
+        options[:retry_delay]    ||= 2 * options[:wait] # seconds
         options[:test_unit_port] ||= 8988
         options[:cucumber_port]  ||= 8990
         options[:rspec_port]     ||= 8989
@@ -86,9 +87,9 @@ module Guard
           Notifier.notify "#{names} successfully #{action}ed", :title => "Spork", :image => :success
         else
           UI.reset_line # workaround before Guard::UI update
-          UI.error "Could not #{action} Spork server for #{names} after #{options[:wait]} seconds. I will continue waiting for a further 60 seconds."
-          Notifier.notify "#{names} NOT #{action}ed. Continuing to wait for 60 seconds.", :title => "Spork", :image => :failed
-          if wait_for_launch(instances, 60)
+          UI.error "Could not #{action} Spork server for #{names} after #{options[:wait]} seconds. I will continue waiting for a further #{options[:retry_delay]} seconds."
+          Notifier.notify "#{names} NOT #{action}ed. Continuing to wait for #{options[:retry_delay]} seconds.", :title => "Spork", :image => :failed
+          if wait_for_launch(instances, options[:retry_delay])
             total_time = Time.now - start_time
             UI.info "Spork server for #{names} eventually #{action}ed after #{total_time.to_i} seconds. Consider adjusting your :wait option beyond this time.", :reset => true
             Notifier.notify "#{names} eventually #{action}ed after #{total_time.to_i} seconds", :title => "Spork", :image => :success
