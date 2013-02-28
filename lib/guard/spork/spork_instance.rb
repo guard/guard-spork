@@ -64,7 +64,6 @@ module Guard
 				if use_foreman?
 					parts << "foreman"
 					parts << "run"
-          parts << "-e=#{options[:foreman].fetch(:env, '.env')}" if foreman_options?
 				end
         parts << "spork"
 
@@ -79,6 +78,11 @@ module Guard
         parts << "-p"
 			 	parts <<	port.to_s
         parts << "-q" if options[:quiet]
+
+        if use_foreman?
+          parts << "-e=#{options[:foreman].fetch(:env, '.env')}" if foreman_options?
+        end
+
         parts
       end
 
