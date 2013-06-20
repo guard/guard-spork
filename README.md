@@ -7,7 +7,7 @@ Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cuc
 
 ## Install
 
-Please be sure to have [Guard](https://github.com/guard/guard) installed before continue.
+Please be sure to have [Guard](https://github.com/guard/guard) installed before continuing.
 
 Install the gem:
 
