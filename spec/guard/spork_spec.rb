@@ -10,7 +10,7 @@ describe Guard::Spork do
 
     it "instantiates Runner with the given options" do
       Guard::Spork::Runner.should_receive(:new).with(:bundler => false).and_return(runner)
-      Guard::Spork.new [], :bundler => false
+      Guard::Spork.new :bundler => false
     end
   end
 
@@ -31,20 +31,18 @@ describe Guard::Spork do
   end
 
   describe "#run_on_modifications" do
-    context "with files" do
-      it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
-        runner.should_receive(:kill_sporks)
-        runner.should_receive(:launch_sporks).with("reload")
-        subject.run_on_modifications(["spec/spec_helper.rb"])
-      end
+    it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
+      runner.should_receive(:kill_sporks)
+      runner.should_receive(:launch_sporks).with("reload")
+      subject.run_on_modifications(["spec/spec_helper.rb"])
     end
+  end
 
-    context "with a symbol" do
-      it "restarts the spork instance matching the symbol" do
-        runner.should_receive(:kill_sporks).with(:symbol)
-        runner.should_receive(:launch_sporks).with("reload", :symbol)
-        subject.run_on_modifications(:symbol)
-      end
+  describe "#run_on_additions" do
+    it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
+      runner.should_receive(:kill_sporks)
+      runner.should_receive(:launch_sporks).with("reload")
+      subject.run_on_additions(["spec/spec_helper.rb"])
     end
   end
 
