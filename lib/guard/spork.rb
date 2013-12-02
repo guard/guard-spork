@@ -21,22 +21,26 @@ module Guard
     end
 
     def reload
-      runner.kill_sporks
-      runner.launch_sporks("reload")
+      relaunch_sporks
     end
 
     def run_on_additions(paths)
-        runner.kill_sporks
-        runner.launch_sporks("reload")
+      relaunch_sporks
     end
 
     def run_on_modifications(paths)
-        runner.kill_sporks
-        runner.launch_sporks("reload")
+      relaunch_sporks
     end
 
     def stop
       runner.kill_sporks
+    end
+
+    private
+
+    def relaunch_sporks
+      runner.kill_sporks
+      runner.launch_sporks("reload")
     end
 
   end
