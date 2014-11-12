@@ -10,7 +10,7 @@ describe Guard::Spork do
 
     it "instantiates Runner with the given options" do
       Guard::Spork::Runner.should_receive(:new).with(:bundler => false).and_return(runner)
-      Guard::Spork.new [], :bundler => false
+      Guard::Spork.new :bundler => false
     end
   end
 
