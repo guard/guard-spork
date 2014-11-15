@@ -6,6 +6,9 @@ rvm:
   - ree
   - rbx
   - jruby
+matrix:
+  allow_failures:
+    - rvm: rbx-2.2.10
 notifications:
   recipients:
     - xrkhill@gmail.com
