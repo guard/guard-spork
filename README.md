@@ -52,14 +52,14 @@ end
 
 ### Running specs over Spork
 
-Pass the `:cli => "--drb"` option to [Guard::RSpec](https://github.com/guard/guard-rspec) and/or [Guard::Cucumber](https://github.com/guard/guard-cucumber) to run them over the Spork DRb server:
+Pass the `:cmd => "rspec --drb"` option to [Guard::RSpec](https://github.com/guard/guard-rspec) and/or [Guard::Cucumber](https://github.com/guard/guard-cucumber) to run them over the Spork DRb server:
 
 ``` ruby
-guard 'rspec', :cli => "--drb" do
+guard 'rspec', :cmd => "rspec --drb" do
   # ...
 end
 
-guard 'cucumber', :cli => "--drb" do
+guard 'cucumber', :cmd => "rspec --drb" do
   # ...
 end
 ```
