@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'childprocess', '>= 0.2.3'
 
   s.add_development_dependency 'bundler',     '~> 1.0'
-  s.add_development_dependency 'rspec',       '~> 2.99'
+  s.add_development_dependency 'rspec',       '= 2.10'
   s.add_development_dependency 'guard-rspec', '~> 1.0'
   s.add_development_dependency 'pry',         '~> 0.9.12.6'
 
