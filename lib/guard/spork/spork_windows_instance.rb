@@ -20,7 +20,7 @@ module Guard
         spork_processes.map { |process| process[:pid] }
       end
 
-      private 
+      private
 
       def drb_ready?
         DRb.start_service
@@ -50,8 +50,8 @@ module Guard
         require "win32ole"
         WIN32OLE.connect("winmgmts://.").InstancesOf("win32_process").
           each.
-          select do |p| 
-            p.commandline =~ /spork|ring_server|magazine_slave_provider/ && 
+          select do |p|
+            p.commandline =~ /spork|ring_server|magazine_slave_provider/ &&
               File.basename(p.executablepath, File.extname(p.executablepath)) =~ /^(cmd|ruby)$/i
           end.
           map { |p| {:pid => p.processid, :ppid => p.parentprocessid} }

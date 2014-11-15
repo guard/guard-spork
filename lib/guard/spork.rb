@@ -1,16 +1,16 @@
 require 'guard'
-require 'guard/guard'
+require 'guard/plugin'
 require 'childprocess'
 
 module Guard
-  class Spork < Guard
+  class Spork < Plugin
 
     autoload :Runner, 'guard/spork/runner'
     autoload :SporkInstance, 'guard/spork/spork_instance'
     autoload :SporkWindowsInstance, 'guard/spork/spork_windows_instance'
     attr_accessor :runner
 
-    def initialize(watchers=[], options={})
+    def initialize(options={})
       super
       @runner = Runner.new(options)
     end
@@ -21,22 +21,26 @@ module Guard
     end
 
     def reload
-      runner.kill_sporks
-      runner.launch_sporks("reload")
+      relaunch_sporks
     end
 
-    def run_on_changes(paths_or_symbol)
-      if paths_or_symbol.is_a?(Symbol)
-        runner.kill_sporks(paths_or_symbol)
-        runner.launch_sporks("reload", paths_or_symbol)
-      else
-        runner.kill_sporks
-        runner.launch_sporks("reload")
-      end
+    def run_on_additions(paths)
+      relaunch_sporks
+    end
+
+    def run_on_modifications(paths)
+      relaunch_sporks
     end
 
     def stop
       runner.kill_sporks
+    end
+
+    private
+
+    def relaunch_sporks
+      runner.kill_sporks
+      runner.launch_sporks("reload")
     end
 
   end

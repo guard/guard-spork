@@ -57,14 +57,14 @@ module Guard
 
       def command
         parts = []
-				if use_bundler?
-					parts << "bundle"
-					parts << "exec"
-				end
-				if use_foreman?
-					parts << "foreman"
-					parts << "run"
-				end
+        if use_bundler?
+          parts << "bundle"
+          parts << "exec"
+        end
+        if use_foreman?
+          parts << "foreman"
+          parts << "run"
+        end
         parts << "spork"
 
         if type == :test_unit
@@ -76,7 +76,7 @@ module Guard
         end
 
         parts << "-p"
-			 	parts <<	port.to_s
+        parts <<  port.to_s
         parts << "-q" if options[:quiet]
 
         if use_foreman?
