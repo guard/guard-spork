@@ -7,8 +7,9 @@ rvm:
   - rbx
   - jruby
 matrix:
+  fast_finish: true
   allow_failures:
-    - rvm: rbx-2.2.10
+    - rvm: rbx
 notifications:
   recipients:
     - xrkhill@gmail.com
