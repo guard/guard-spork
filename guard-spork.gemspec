@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.rubyforge_project         = 'guard-spork'
 
-  s.add_dependency 'guard', '~> 2.8.2'
+  s.add_dependency 'guard', '~> 2.0'
   s.add_dependency 'spork', '>= 0.8.4'
   s.add_dependency 'childprocess', '>= 0.2.3'
 
