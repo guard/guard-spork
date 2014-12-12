@@ -30,7 +30,7 @@ module Guard
       def start
         executable, *cmd = command
 
-        ::Guard::UI.debug "guard-spork command execution: #{cmd}"
+        Compat::UI.debug "guard-spork command execution: #{cmd}"
 
         @process = ChildProcess.build(executable, *cmd)
         @process.environment.merge!(env) unless env.empty?
