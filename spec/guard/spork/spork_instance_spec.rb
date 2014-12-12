@@ -221,6 +221,7 @@ module Guard
       let(:instance) { SporkInstance.new(:test, 1, {}, {}) }
       before(:each) do
         allow(instance).to receive_messages(:command => "")
+        allow(Guard::Compat::UI).to receive(:debug)
       end
 
       describe "#start" do

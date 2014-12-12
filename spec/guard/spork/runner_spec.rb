@@ -1,5 +1,6 @@
 require 'timeout'
 
+require "guard/compat/test/helper"
 require "guard/spork"
 
 RSpec.describe Guard::Spork::Runner do
@@ -22,11 +23,11 @@ RSpec.describe Guard::Spork::Runner do
   end
 
   before(:each) do
-    allow(Guard::Notifier).to receive(:notify)
     allow_any_instance_of(Guard::Spork::SporkInstance).to receive(:start)
-    allow(Guard::UI).to receive(:info)
-    allow(Guard::UI).to receive(:error)
-    allow(Guard::UI).to receive(:reset_line)
+    allow(Guard::Compat::UI).to receive(:info)
+    allow(Guard::Compat::UI).to receive(:error)
+    allow(Guard::Compat::UI).to receive(:notify)
+    allow(Guard::Compat::UI).to receive(:debug)
   end
 
   describe "(spork detection)" do
@@ -301,7 +302,7 @@ RSpec.describe Guard::Spork::Runner do
           fake_instance("two"),
           fake_instance("three"),
         ])
-        expect(Guard::UI).to receive(:info).with("Kissing Spork for one, two, three", :reset => true)
+        expect(Guard::Compat::UI).to receive(:info).with("Kissing Spork for one, two, three", :reset => true)
         runner.launch_sporks("kiss")
       end
 
@@ -363,7 +364,7 @@ RSpec.describe Guard::Spork::Runner do
           fake_instance("two"),
           fake_instance("three"),
         ])
-        expect(Guard::UI).to receive(:info).with("Kissing Spork for two", :reset => true)
+        expect(Guard::Compat::UI).to receive(:info).with("Kissing Spork for two", :reset => true)
         runner.launch_sporks("kiss", "two")
       end
 
@@ -427,7 +428,7 @@ RSpec.describe Guard::Spork::Runner do
         dead = double("dead instance", :alive? => false, :pid => 222)
         allow(runner).to receive_messages(:spork_instances => [alive, dead])
 
-        expect(Guard::UI).to receive(:debug).with(/111/)
+        expect(Guard::Compat::UI).to receive(:debug).with(/111/)
         expect(alive).to receive(:stop)
         expect(dead).not_to receive(:stop)
 
@@ -441,7 +442,7 @@ RSpec.describe Guard::Spork::Runner do
         other = double("dead instance", :alive? => true, :pid => 222, :type => :other)
         allow(runner).to receive_messages(:spork_instances => [matching, other])
 
-        expect(Guard::UI).to receive(:debug).with(/111/)
+        expect(Guard::Compat::UI).to receive(:debug).with(/111/)
         expect(matching).to receive(:stop)
         expect(other).not_to receive(:stop)
 
@@ -462,7 +463,7 @@ RSpec.describe Guard::Spork::Runner do
       it "calls a KILL command for each Spork server running on the system" do
         expect(runner.class.spork_instance_class).to receive(:spork_pids).and_return([666, 999])
 
-        expect(Guard::UI).to receive(:debug).with('Killing Spork servers with PID: 666, 999')
+        expect(Guard::Compat::UI).to receive(:debug).with('Killing Spork servers with PID: 666, 999')
         expect(Process).to receive(:kill).with('KILL', 666)
         expect(Process).to receive(:kill).with('KILL', 999)
 
