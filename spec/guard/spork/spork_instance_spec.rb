@@ -219,7 +219,7 @@ class Guard::Spork
   describe SporkInstance, "spawning" do
     let(:instance) { SporkInstance.new(:test, 1, {}, {}) }
     before(:each) do
-      instance.stub(:command => "")
+      allow(instance).to receive_messages(:command => "")
     end
 
     describe "#start" do
@@ -228,14 +228,14 @@ class Guard::Spork
       it "uses ChildProcess and stores the pid" do
         process = double("process").as_null_object
         expect(ChildProcess).to receive(:build).and_return(process)
-        process.stub(:pid => "a pid")
+        allow(process).to receive_messages(:pid => "a pid")
         expect {
           instance.start
         }.to change(instance, :pid).from(nil).to("a pid")
       end
 
       it "passes environment to the ChildProcess" do
-        instance.stub(:command => "command", :env => {:environment => true})
+        allow(instance).to receive_messages(:command => "command", :env => {:environment => true})
         process = double("process").as_null_object
         expect(ChildProcess).to receive(:build).and_return(process)
         process_env = {}
@@ -257,7 +257,7 @@ class Guard::Spork
     describe "(alive)" do
       subject { instance }
       before(:each) do
-        instance.stub(:pid => nil)
+        allow(instance).to receive_messages(:pid => nil)
       end
 
       context "when no pid is set" do
@@ -266,10 +266,10 @@ class Guard::Spork
 
       context "when the pid is a running process" do
         before(:each) do
-          instance.stub(:pid => 42)
+          allow(instance).to receive_messages(:pid => 42)
           process = double("a process")
-          instance.stub(:process => process)
-          process.stub(:alive? => true)
+          allow(instance).to receive_messages(:process => process)
+          allow(process).to receive_messages(:alive? => true)
         end
 
         it { is_expected.to be_alive }
@@ -278,10 +278,10 @@ class Guard::Spork
       context "when the pid is a stopped process" do
         subject { instance }
         before(:each) do
-          instance.stub(:pid => 42)
+          allow(instance).to receive_messages(:pid => 42)
           process = double("a process")
-          instance.stub(:process => process)
-          process.stub(:alive? => false)
+          allow(instance).to receive_messages(:process => process)
+          allow(process).to receive_messages(:alive? => false)
         end
 
         it { is_expected.not_to be_alive }
@@ -293,24 +293,24 @@ class Guard::Spork
       subject { instance }
 
       before(:each) do
-        instance.stub(:pid => 42, :port => 1337)
-        TCPSocket.stub(:new => socket)
+        allow(instance).to receive_messages(:pid => 42, :port => 1337)
+        allow(TCPSocket).to receive_messages(:new => socket)
       end
 
       context "when no pid is specified" do
-        before(:each) { instance.stub(:pid => nil) }
+        before(:each) { allow(instance).to receive_messages(:pid => nil) }
         it { is_expected.not_to be_running }
       end
 
       context "when process is not alive" do
-        before(:each) { instance.stub(:alive? => false)}
+        before(:each) { allow(instance).to receive_messages(:alive? => false)}
         it { is_expected.not_to be_running }
       end
 
       context "when spork does not respond" do
         before(:each) do
           expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_raise(Errno::ECONNREFUSED)
-          instance.stub(:alive? => true)
+          allow(instance).to receive_messages(:alive? => true)
         end
 
         it { is_expected.not_to be_running }
@@ -319,7 +319,7 @@ class Guard::Spork
       context "when spork accepts the connection" do
         before(:each) do
           expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_return(socket)
-          instance.stub(:alive? => true)
+          allow(instance).to receive_messages(:alive? => true)
         end
 
         it { is_expected.to be_running }

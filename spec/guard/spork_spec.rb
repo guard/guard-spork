@@ -6,7 +6,7 @@ describe Guard::Spork do
 
   describe '#initialize' do
     let(:runner) { double('runner instance', :reevaluate => nil) }
-    before(:each) { Guard::Spork::Runner.stub(:new => runner) }
+    before(:each) { allow(Guard::Spork::Runner).to receive_messages(:new => runner) }
 
     it "instantiates Runner with the given options" do
       expect(Guard::Spork::Runner).to receive(:new).with(:bundler => false).and_return(runner)

@@ -250,7 +250,7 @@ describe Guard::Spork::Runner do
 
     context ".windows?" do
       describe Guard::Spork::SporkInstance do
-        before { runner.class.stub(:windows? => false) }
+        before { allow(runner.class).to receive_messages(:windows? => false) }
 
         it "is created when not Windows OS is used" do
           expect(instance(:rspec, Guard::Spork::Runner.new)).to be_instance_of(Guard::Spork::SporkInstance)
@@ -258,7 +258,7 @@ describe Guard::Spork::Runner do
       end
 
       describe Guard::Spork::SporkWindowsInstance do
-        before { runner.class.stub(:windows? => true) }
+        before { allow(runner.class).to receive_messages(:windows? => true) }
 
         it "is created when Windows OS is used" do
           expect(instance(:rspec, Guard::Spork::Runner.new)).to be_instance_of(Guard::Spork::SporkWindowsInstance)
@@ -289,13 +289,13 @@ describe Guard::Spork::Runner do
     end
 
     before(:each) do
-      runner.stub(:spork_instances => [rspec_instance, cucumber_instance])
+      allow(runner).to receive_messages(:spork_instances => [rspec_instance, cucumber_instance])
       allow(runner).to receive(:sleep)
     end
 
     context "with no type specified" do
       it "outputs an info message" do
-        runner.stub(:spork_instances => [
+        allow(runner).to receive_messages(:spork_instances => [
           fake_instance("one"),
           fake_instance("two"),
           fake_instance("three"),
@@ -312,7 +312,7 @@ describe Guard::Spork::Runner do
 
       it "waits for the spork instances to start" do
         expect(rspec_instance).to receive(:running?).and_return(false, false, false, true)
-        cucumber_instance.stub(:running? => true)
+        allow(cucumber_instance).to receive_messages(:running? => true)
         expect(runner).to receive(:sleep).with(1).exactly(4).times
 
         runner.launch_sporks("")
@@ -322,8 +322,8 @@ describe Guard::Spork::Runner do
       it "does not wait longer than the configured wait duration + 60" do
         runner.options[:wait] = 7
         expect(runner).to receive(:sleep).with(1).exactly(67).times
-        rspec_instance.stub(:running? => false)
-        cucumber_instance.stub(:running? => true)
+        allow(rspec_instance).to receive_messages(:running? => false)
+        allow(cucumber_instance).to receive_messages(:running? => true)
 
         expect {
           runner.launch_sporks("")
@@ -334,8 +334,8 @@ describe Guard::Spork::Runner do
         runner.options[:wait] = 7
         runner.options[:retry_delay] = 10
         expect(runner).to receive(:sleep).with(1).exactly(17).times
-        rspec_instance.stub(:running? => false)
-        cucumber_instance.stub(:running? => true)
+        allow(rspec_instance).to receive_messages(:running? => false)
+        allow(cucumber_instance).to receive_messages(:running? => true)
 
         expect {
           runner.launch_sporks("")
@@ -345,8 +345,8 @@ describe Guard::Spork::Runner do
       context "when :wait is nil" do
         it "does not time out" do
           runner.options[:wait] = nil
-          rspec_instance.stub(:running? => false)
-          cucumber_instance.stub(:running? => true)
+          allow(rspec_instance).to receive_messages(:running? => false)
+          allow(cucumber_instance).to receive_messages(:running? => true)
 
           expect {
             runner.launch_sporks("")
@@ -357,7 +357,7 @@ describe Guard::Spork::Runner do
 
     context "with a type specified" do
       it "outputs an info message" do
-        runner.stub(:spork_instances => [
+        allow(runner).to receive_messages(:spork_instances => [
           fake_instance("one"),
           fake_instance("two"),
           fake_instance("three"),
@@ -384,7 +384,7 @@ describe Guard::Spork::Runner do
       it "does not wait longer than the configured wait duration + 60" do
         runner.options[:wait] = 7
         expect(runner).to receive(:sleep).with(1).exactly(67).times
-        rspec_instance.stub(:running? => false)
+        allow(rspec_instance).to receive_messages(:running? => false)
 
         expect(cucumber_instance).not_to receive(:running?)
         expect {
@@ -397,7 +397,7 @@ describe Guard::Spork::Runner do
         runner.options[:wait] = 7
         runner.options[:retry_delay] = 10
         expect(runner).to receive(:sleep).with(1).exactly(17).times
-        rspec_instance.stub(:running? => false)
+        allow(rspec_instance).to receive_messages(:running? => false)
 
         expect(cucumber_instance).not_to receive(:running?)
         expect {
@@ -408,7 +408,7 @@ describe Guard::Spork::Runner do
       context "when :wait is nil" do
         it "does not time out" do
           runner.options[:wait] = nil
-          rspec_instance.stub(:running? => false)
+          allow(rspec_instance).to receive_messages(:running? => false)
 
           expect(cucumber_instance).not_to receive(:running?)
           expect {
@@ -424,7 +424,7 @@ describe Guard::Spork::Runner do
       it "kills all alive spork instances" do
         alive = double("alive instance", :alive? => true, :pid => 111)
         dead = double("dead instance", :alive? => false, :pid => 222)
-        runner.stub(:spork_instances => [alive, dead])
+        allow(runner).to receive_messages(:spork_instances => [alive, dead])
 
         expect(Guard::UI).to receive(:debug).with(/111/)
         expect(alive).to receive(:stop)
@@ -438,7 +438,7 @@ describe Guard::Spork::Runner do
       it "kills the matching spork instance" do
         matching = double("alive instance", :alive? => true, :pid => 111, :type => :matching)
         other = double("dead instance", :alive? => true, :pid => 222, :type => :other)
-        runner.stub(:spork_instances => [matching, other])
+        allow(runner).to receive_messages(:spork_instances => [matching, other])
 
         expect(Guard::UI).to receive(:debug).with(/111/)
         expect(matching).to receive(:stop)
@@ -483,7 +483,7 @@ describe Guard::Spork::Runner do
     subject {runner.send(:should_use?, :what)}
 
     context "with the detection succeeding" do
-      before(:each) { runner.stub(:detect_what => true) }
+      before(:each) { allow(runner).to receive_messages(:detect_what => true) }
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
 
       context "with no option specified" do
@@ -502,7 +502,7 @@ describe Guard::Spork::Runner do
     end
 
     context "with the detection failing" do
-      before(:each) { runner.stub(:detect_what => false) }
+      before(:each) { allow(runner).to receive_messages(:detect_what => false) }
 
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
       subject {runner.send(:should_use?, :what)}
