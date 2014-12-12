@@ -9,46 +9,46 @@ describe Guard::Spork do
     before(:each) { Guard::Spork::Runner.stub(:new => runner) }
 
     it "instantiates Runner with the given options" do
-      Guard::Spork::Runner.should_receive(:new).with(:bundler => false).and_return(runner)
+      expect(Guard::Spork::Runner).to receive(:new).with(:bundler => false).and_return(runner)
       Guard::Spork.new :bundler => false
     end
   end
 
   describe "#start" do
     it "calls Runner#kill_global_sporks and Runner#launch_sporks with 'start'" do
-      runner.should_receive(:kill_global_sporks)
-      runner.should_receive(:launch_sporks).with("start")
+      expect(runner).to receive(:kill_global_sporks)
+      expect(runner).to receive(:launch_sporks).with("start")
       subject.start
     end
   end
 
   describe "#reload" do
     it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
-      runner.should_receive(:kill_sporks)
-      runner.should_receive(:launch_sporks).with("reload")
+      expect(runner).to receive(:kill_sporks)
+      expect(runner).to receive(:launch_sporks).with("reload")
       subject.reload
     end
   end
 
   describe "#run_on_modifications" do
     it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
-      runner.should_receive(:kill_sporks)
-      runner.should_receive(:launch_sporks).with("reload")
+      expect(runner).to receive(:kill_sporks)
+      expect(runner).to receive(:launch_sporks).with("reload")
       subject.run_on_modifications(["spec/spec_helper.rb"])
     end
   end
 
   describe "#run_on_additions" do
     it "calls Runner#kill_sporks and Runner#launch_sporks with 'reload'" do
-      runner.should_receive(:kill_sporks)
-      runner.should_receive(:launch_sporks).with("reload")
+      expect(runner).to receive(:kill_sporks)
+      expect(runner).to receive(:launch_sporks).with("reload")
       subject.run_on_additions(["spec/spec_helper.rb"])
     end
   end
 
   describe "#stop" do
     it "calls Runner#kill_sporks" do
-      runner.should_receive(:kill_sporks)
+      expect(runner).to receive(:kill_sporks)
       subject.stop
     end
   end

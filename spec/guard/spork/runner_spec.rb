@@ -7,32 +7,32 @@ describe Guard::Spork::Runner do
   describe "default options" do
     subject { Guard::Spork::Runner.new.options }
 
-    it { should include(:wait => 30) }
-    it { should include(:cucumber_port => 8990) }
-    it { should include(:rspec_port => 8989) }
-    it { should include(:test_unit_port => 8988) }
-    it { should include(:test_unit_env => {}) }
-    it { should include(:rspec_env => {}) }
-    it { should include(:minitest => false) }
-    it { should include(:cucumber_env => {}) }
-    it { should include(:aggressive_kill => true) }
-    it { should include(:foreman => false) }
-    it { should include(:quiet => false) }    
+    it { is_expected.to include(:wait => 30) }
+    it { is_expected.to include(:cucumber_port => 8990) }
+    it { is_expected.to include(:rspec_port => 8989) }
+    it { is_expected.to include(:test_unit_port => 8988) }
+    it { is_expected.to include(:test_unit_env => {}) }
+    it { is_expected.to include(:rspec_env => {}) }
+    it { is_expected.to include(:minitest => false) }
+    it { is_expected.to include(:cucumber_env => {}) }
+    it { is_expected.to include(:aggressive_kill => true) }
+    it { is_expected.to include(:foreman => false) }
+    it { is_expected.to include(:quiet => false) }    
   end
 
   before(:each) do
-    Guard::Notifier.stub(:notify)
-    Guard::Spork::SporkInstance.any_instance.stub(:start)
-    Guard::UI.stub(:info)
-    Guard::UI.stub(:error)
-    Guard::UI.stub(:reset_line)
+    allow(Guard::Notifier).to receive(:notify)
+    allow_any_instance_of(Guard::Spork::SporkInstance).to receive(:start)
+    allow(Guard::UI).to receive(:info)
+    allow(Guard::UI).to receive(:error)
+    allow(Guard::UI).to receive(:reset_line)
   end
 
   describe "(spork detection)" do
     def file_existance(files)
-      File.stub(:exist?).and_raise { |name| "Unexpected file passed: #{name}" }
+      allow(File).to receive(:exist?).and_raise { |name| "Unexpected file passed: #{name}" }
       files.each_pair do |file, existance|
-        File.stub(:exist?).with(file).and_return(existance)
+        allow(File).to receive(:exist?).with(file).and_return(existance)
       end
     end
 
@@ -52,8 +52,8 @@ describe Guard::Spork::Runner do
       })
 
       instance(:rspec, runner).tap do |instance|
-        instance.port.should == 2
-        instance.env.should == {'spec' => 'yes'}
+        expect(instance.port).to eq(2)
+        expect(instance.env).to eq({'spec' => 'yes'})
       end
     end
 
@@ -65,8 +65,8 @@ describe Guard::Spork::Runner do
       })
 
       instance(:cucumber, runner).tap do |instance|
-        instance.port.should == 2
-        instance.env.should == {'cuke' => 'yes'}
+        expect(instance.port).to eq(2)
+        expect(instance.env).to eq({'cuke' => 'yes'})
       end
     end
 
@@ -78,8 +78,8 @@ describe Guard::Spork::Runner do
       })
 
       instance(:test_unit, runner).tap do |instance|
-        instance.port.should == 2
-        instance.env.should == {'unit' => 'yes'}
+        expect(instance.port).to eq(2)
+        expect(instance.env).to eq({'unit' => 'yes'})
       end
     end
 
@@ -91,8 +91,8 @@ describe Guard::Spork::Runner do
       })
 
       instance(:minitest, runner).tap do |instance|
-        instance.port.should == 2
-        instance.env.should == {'minitest' => 'yes'}
+        expect(instance.port).to eq(2)
+        expect(instance.env).to eq({'minitest' => 'yes'})
       end
     end
 
@@ -108,19 +108,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :test_unit" do
-        instance(:test_unit).should be_instance_of(spork_instance_class)
+        expect(instance(:test_unit)).to be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the test_unit instance" do
-        instance(:test_unit).options.should include(:bundler => false)
+        expect(instance(:test_unit).options).to include(:bundler => false)
       end
 
       it "does not have a spork instance for :rspec" do
-        instance(:rspec).should be_nil
+        expect(instance(:rspec)).to be_nil
       end
 
       it "does not have a spork instance for :cucumber" do
-        instance(:cucumber).should be_nil
+        expect(instance(:cucumber)).to be_nil
       end
     end
 
@@ -142,19 +142,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :test_unit" do
-        instance(:minitest, @runner).should be_instance_of(spork_instance_class)
+        expect(instance(:minitest, @runner)).to be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the test_unit instance" do
-        instance(:minitest, @runner).options.should include(:bundler => false)
+        expect(instance(:minitest, @runner).options).to include(:bundler => false)
       end
 
       it "does not have a spork instance for :rspec" do
-        instance(:rspec, @runner).should be_nil
+        expect(instance(:rspec, @runner)).to be_nil
       end
 
       it "does not have a spork instance for :cucumber" do
-        instance(:cucumber, @runner).should be_nil
+        expect(instance(:cucumber, @runner)).to be_nil
       end
     end
 
@@ -169,19 +169,19 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        instance(:rspec).should be_instance_of(spork_instance_class)
+        expect(instance(:rspec)).to be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the rspec instance" do
-        instance(:rspec).options.should include(:bundler => false)
+        expect(instance(:rspec).options).to include(:bundler => false)
       end
 
       it "does not have a spork instance for :test_unit" do
-        instance(:test_unit).should be_nil
+        expect(instance(:test_unit)).to be_nil
       end
 
       it "does not have a spork instance for :cucumber" do
-        instance(:cucumber).should be_nil
+        expect(instance(:cucumber)).to be_nil
       end
     end
 
@@ -196,23 +196,23 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :cucumber" do
-        instance(:cucumber).should be_instance_of(spork_instance_class)
+        expect(instance(:cucumber)).to be_instance_of(spork_instance_class)
       end
 
       it "does not have bundler enabled for the cucumber instance" do
-        instance(:cucumber).options.should include(:bundler => false)
+        expect(instance(:cucumber).options).to include(:bundler => false)
       end
 
       it "does not have a spork instance for :test_unit" do
-        instance(:test_unit).should be_nil
+        expect(instance(:test_unit)).to be_nil
       end
 
       it "does not have a spork instance for :rspec" do
-        instance(:rspec).should be_nil
+        expect(instance(:rspec)).to be_nil
       end
 
       it "does not have a spork instance for :minitest" do
-        instance(:minitest).should be_nil
+        expect(instance(:minitest)).to be_nil
       end
 
     end
@@ -228,23 +228,23 @@ describe Guard::Spork::Runner do
       end
 
       it "has a spork instance for :rspec" do
-        instance(:rspec).should be_instance_of(spork_instance_class)
+        expect(instance(:rspec)).to be_instance_of(spork_instance_class)
       end
 
       it "has a spork instance for :cucumber" do
-        instance(:cucumber).should be_instance_of(spork_instance_class)
+        expect(instance(:cucumber)).to be_instance_of(spork_instance_class)
       end
 
       it "has bundler enabled for the rspec instance" do
-        instance(:rspec).options.should include(:bundler => true)
+        expect(instance(:rspec).options).to include(:bundler => true)
       end
 
       it "has bundler enabled for the cucumber instance" do
-        instance(:cucumber).options.should include(:bundler => true)
+        expect(instance(:cucumber).options).to include(:bundler => true)
       end
 
       it "does not have a spork instance for :test_unit" do
-        instance(:test_unit).should be_nil
+        expect(instance(:test_unit)).to be_nil
       end
     end
 
@@ -253,7 +253,7 @@ describe Guard::Spork::Runner do
         before { runner.class.stub(:windows? => false) }
 
         it "is created when not Windows OS is used" do
-          instance(:rspec, Guard::Spork::Runner.new).should be_instance_of(Guard::Spork::SporkInstance)
+          expect(instance(:rspec, Guard::Spork::Runner.new)).to be_instance_of(Guard::Spork::SporkInstance)
         end
       end
 
@@ -261,7 +261,7 @@ describe Guard::Spork::Runner do
         before { runner.class.stub(:windows? => true) }
 
         it "is created when Windows OS is used" do
-          instance(:rspec, Guard::Spork::Runner.new).should be_instance_of(Guard::Spork::SporkWindowsInstance)
+          expect(instance(:rspec, Guard::Spork::Runner.new)).to be_instance_of(Guard::Spork::SporkWindowsInstance)
         end
       end
     end
@@ -290,7 +290,7 @@ describe Guard::Spork::Runner do
 
     before(:each) do
       runner.stub(:spork_instances => [rspec_instance, cucumber_instance])
-      runner.stub(:sleep)
+      allow(runner).to receive(:sleep)
     end
 
     context "with no type specified" do
@@ -300,20 +300,20 @@ describe Guard::Spork::Runner do
           fake_instance("two"),
           fake_instance("three"),
         ])
-        Guard::UI.should_receive(:info).with("Kissing Spork for one, two, three", :reset => true)
+        expect(Guard::UI).to receive(:info).with("Kissing Spork for one, two, three", :reset => true)
         runner.launch_sporks("kiss")
       end
 
       it "starts all spork instances" do
-        rspec_instance.should_receive(:start)
-        cucumber_instance.should_receive(:start)
+        expect(rspec_instance).to receive(:start)
+        expect(cucumber_instance).to receive(:start)
         runner.launch_sporks("")
       end
 
       it "waits for the spork instances to start" do
-        rspec_instance.should_receive(:running?).and_return(false, false, false, true)
+        expect(rspec_instance).to receive(:running?).and_return(false, false, false, true)
         cucumber_instance.stub(:running? => true)
-        runner.should_receive(:sleep).with(1).exactly(4).times
+        expect(runner).to receive(:sleep).with(1).exactly(4).times
 
         runner.launch_sporks("")
       end
@@ -321,7 +321,7 @@ describe Guard::Spork::Runner do
       # This behavior is a bit weird, isn't it?
       it "does not wait longer than the configured wait duration + 60" do
         runner.options[:wait] = 7
-        runner.should_receive(:sleep).with(1).exactly(67).times
+        expect(runner).to receive(:sleep).with(1).exactly(67).times
         rspec_instance.stub(:running? => false)
         cucumber_instance.stub(:running? => true)
 
@@ -333,7 +333,7 @@ describe Guard::Spork::Runner do
       it "does not wait longer than the configured wait duration + retry_delay" do
         runner.options[:wait] = 7
         runner.options[:retry_delay] = 10
-        runner.should_receive(:sleep).with(1).exactly(17).times
+        expect(runner).to receive(:sleep).with(1).exactly(17).times
         rspec_instance.stub(:running? => false)
         cucumber_instance.stub(:running? => true)
 
@@ -362,31 +362,31 @@ describe Guard::Spork::Runner do
           fake_instance("two"),
           fake_instance("three"),
         ])
-        Guard::UI.should_receive(:info).with("Kissing Spork for two", :reset => true)
+        expect(Guard::UI).to receive(:info).with("Kissing Spork for two", :reset => true)
         runner.launch_sporks("kiss", "two")
       end
 
       it "starts the matching spork instance" do
-        rspec_instance.should_receive(:start)
-        cucumber_instance.should_not_receive(:start)
+        expect(rspec_instance).to receive(:start)
+        expect(cucumber_instance).not_to receive(:start)
         runner.launch_sporks("", :rspec)
       end
 
       it "waits for the spork instances to start" do
-        rspec_instance.should_receive(:running?).and_return(false, false, false, true)
-        runner.should_receive(:sleep).with(1).exactly(4).times
+        expect(rspec_instance).to receive(:running?).and_return(false, false, false, true)
+        expect(runner).to receive(:sleep).with(1).exactly(4).times
 
-        cucumber_instance.should_not_receive(:running?)
+        expect(cucumber_instance).not_to receive(:running?)
         runner.launch_sporks("", :rspec)
       end
 
       # This behavior is a bit weird, isn't it?
       it "does not wait longer than the configured wait duration + 60" do
         runner.options[:wait] = 7
-        runner.should_receive(:sleep).with(1).exactly(67).times
+        expect(runner).to receive(:sleep).with(1).exactly(67).times
         rspec_instance.stub(:running? => false)
 
-        cucumber_instance.should_not_receive(:running?)
+        expect(cucumber_instance).not_to receive(:running?)
         expect {
           runner.launch_sporks("", :rspec)
         }.to throw_symbol(:task_has_failed)
@@ -396,10 +396,10 @@ describe Guard::Spork::Runner do
       it "does not wait longer than the configured wait duration + retry_delay" do
         runner.options[:wait] = 7
         runner.options[:retry_delay] = 10
-        runner.should_receive(:sleep).with(1).exactly(17).times
+        expect(runner).to receive(:sleep).with(1).exactly(17).times
         rspec_instance.stub(:running? => false)
 
-        cucumber_instance.should_not_receive(:running?)
+        expect(cucumber_instance).not_to receive(:running?)
         expect {
           runner.launch_sporks("", :rspec)
         }.to throw_symbol(:task_has_failed)
@@ -410,7 +410,7 @@ describe Guard::Spork::Runner do
           runner.options[:wait] = nil
           rspec_instance.stub(:running? => false)
 
-          cucumber_instance.should_not_receive(:running?)
+          expect(cucumber_instance).not_to receive(:running?)
           expect {
             runner.launch_sporks("", :rspec)
           }.not_to throw_symbol(:task_has_failed)
@@ -426,9 +426,9 @@ describe Guard::Spork::Runner do
         dead = double("dead instance", :alive? => false, :pid => 222)
         runner.stub(:spork_instances => [alive, dead])
 
-        Guard::UI.should_receive(:debug).with(/111/)
-        alive.should_receive(:stop)
-        dead.should_not_receive(:stop)
+        expect(Guard::UI).to receive(:debug).with(/111/)
+        expect(alive).to receive(:stop)
+        expect(dead).not_to receive(:stop)
 
         runner.kill_sporks
       end
@@ -440,9 +440,9 @@ describe Guard::Spork::Runner do
         other = double("dead instance", :alive? => true, :pid => 222, :type => :other)
         runner.stub(:spork_instances => [matching, other])
 
-        Guard::UI.should_receive(:debug).with(/111/)
-        matching.should_receive(:stop)
-        other.should_not_receive(:stop)
+        expect(Guard::UI).to receive(:debug).with(/111/)
+        expect(matching).to receive(:stop)
+        expect(other).not_to receive(:stop)
 
         runner.kill_sporks(:matching)
       end
@@ -454,16 +454,16 @@ describe Guard::Spork::Runner do
       before(:each) { runner.options[:aggressive_kill] = true }
 
       it "calls #kill_pids" do
-        runner.should_receive(:kill_pids)
+        expect(runner).to receive(:kill_pids)
         runner.kill_global_sporks
       end
 
       it "calls a KILL command for each Spork server running on the system" do
-        runner.class.spork_instance_class.should_receive(:spork_pids).and_return([666, 999])
+        expect(runner.class.spork_instance_class).to receive(:spork_pids).and_return([666, 999])
 
-        Guard::UI.should_receive(:debug).with('Killing Spork servers with PID: 666, 999')
-        Process.should_receive(:kill).with('KILL', 666)
-        Process.should_receive(:kill).with('KILL', 999)
+        expect(Guard::UI).to receive(:debug).with('Killing Spork servers with PID: 666, 999')
+        expect(Process).to receive(:kill).with('KILL', 666)
+        expect(Process).to receive(:kill).with('KILL', 999)
 
         runner.kill_global_sporks
       end
@@ -473,7 +473,7 @@ describe Guard::Spork::Runner do
       before(:each) { runner.options[:aggressive_kill] = false }
 
       it "does not call #kill_pids" do
-        runner.should_not_receive(:kill_pids)
+        expect(runner).not_to receive(:kill_pids)
         runner.kill_global_sporks
       end
     end
@@ -487,17 +487,17 @@ describe Guard::Spork::Runner do
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
 
       context "with no option specified" do
-        it {should be_true}
+        it {is_expected.to be_truthy}
       end
 
       context "with an option set to false" do
         before(:each) {runner.options[:what] = false}
-        it {should be_false}
+        it {is_expected.to be_falsey}
       end
 
       context "with an option set to true" do
         before(:each) {runner.options[:what] = true}
-        it {should be_true}
+        it {is_expected.to be_truthy}
       end
     end
 
@@ -507,17 +507,17 @@ describe Guard::Spork::Runner do
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
       subject {runner.send(:should_use?, :what)}
       context "with no option specified" do
-        it {should be_false}
+        it {is_expected.to be_falsey}
       end
 
       context "with an option set to false" do
         before(:each) {runner.options[:what] = false}
-        it {should be_false}
+        it {is_expected.to be_falsey}
       end
 
       context "with an option set to true" do
         before(:each) {runner.options[:what] = true}
-        it {should be_true}
+        it {is_expected.to be_truthy}
       end
     end
   end

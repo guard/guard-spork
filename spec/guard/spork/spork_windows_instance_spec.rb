@@ -6,7 +6,10 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkWindowsInstance.new(:rspec, 1337, {}, options) }
 
-      its(:command) { should == %w{cmd /C spork -p 1337} } 
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(%w{cmd /C spork -p 1337}) }
+      end 
     end
   end
 
@@ -15,14 +18,14 @@ class Guard::Spork
 
     describe "#stop" do
       it "kills all child processes manually on Windows" do 
-        instance.should_receive(:pid).and_return("a pid")
+        expect(instance).to receive(:pid).and_return("a pid")
         processes = [{:pid => 22, :ppid => "a pid"}, {:pid => 66, :ppid => 99}, {:pid => 33, :ppid => 22}, {:pid => 44, :ppid => 33}]
         instance.class.stub(:spork_processes => processes)
-        Process.should_receive(:kill).with(9, "a pid")
-        Process.should_receive(:kill).with(9, 22)
-        Process.should_receive(:kill).with(9, 33)
-        Process.should_receive(:kill).with(9, 44)
-        Process.should_not_receive(:kill).with(9, 66)
+        expect(Process).to receive(:kill).with(9, "a pid")
+        expect(Process).to receive(:kill).with(9, 22)
+        expect(Process).to receive(:kill).with(9, 33)
+        expect(Process).to receive(:kill).with(9, 44)
+        expect(Process).not_to receive(:kill).with(9, 66)
 
         instance.stop
       end
@@ -39,22 +42,22 @@ class Guard::Spork
 
       context "when spork accepts the connection and DRb is not ready" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
+          expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
           instance.stub(:drb_ready? => false)
         end
 
-        it { should_not be_running }
+        it { is_expected.not_to be_running }
       end
 
       context "when spork accepts the connection and DRb is ready" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
+          expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
           instance.stub(:drb_ready? => true)
         end
 
-        it { should be_running }
+        it { is_expected.to be_running }
       end
     end
 
@@ -63,7 +66,7 @@ class Guard::Spork
         require "win32ole"
 
         instances = double('instances')
-        WIN32OLE.should_receive(:connect).
+        expect(WIN32OLE).to receive(:connect).
           with("winmgmts://.").and_return(instances)
 
         MockProcess = Struct.new :processid, :parentprocessid, :executablepath, :commandline
@@ -72,10 +75,10 @@ class Guard::Spork
         ring_server = MockProcess.new 3, 2, "c:\\foo\\bar\\ruby.exe", "ruby.exe bar\\ring_server.rb"
         slave_provider = MockProcess.new 4, 1, "c:\\foo\\bar\\ruby.exe", "ruby.exe bar\\magazine_slave_provider.rb"
         foo = MockProcess.new 5, 1, "c:\\foo\\bar\\foobar.exe", "foobar.exe ignored"
-        instances.should_receive(:InstancesOf).with("win32_process").
+        expect(instances).to receive(:InstancesOf).with("win32_process").
           and_return([spork, spork_cmd, ring_server, slave_provider, foo])
 
-        instance.class.spork_pids.should == [1, 2, 3, 4]
+        expect(instance.class.spork_pids).to eq([1, 2, 3, 4])
       end
     end
   end

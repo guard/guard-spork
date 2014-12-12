@@ -10,27 +10,51 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:rspec, 1337, {}, options) }
 
-      its(:command) { should == %w{spork -p 1337} }
-      its(:port) { should == 1337 }
-      its(:type) { should == :rspec }
-      its(:to_s) { should == "RSpec" }
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(%w{spork -p 1337}) }
+      end
+
+      describe '#port' do
+        subject { super().port }
+        it { is_expected.to eq(1337) }
+      end
+
+      describe '#type' do
+        subject { super().type }
+        it { is_expected.to eq(:rspec) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq("RSpec") }
+      end
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == %w{bundle exec spork -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec spork -p 1337}) }
+        end
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork -p 1337}) }
+        end
       end
 
       context "with quiet enabled" do
         let(:options) { { :quiet => true } }
 
-        its(:command) { should == %w{spork -p 1337 -q} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{spork -p 1337 -q}) }
+        end
       end
     end
 
@@ -38,27 +62,51 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:cucumber, 1337, {}, options) }
 
-      its(:command) { should == %w{spork cu -p 1337} }
-      its(:port) { should == 1337 }
-      its(:type) { should == :cucumber }
-      its(:to_s) { should == "Cucumber" }
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(%w{spork cu -p 1337}) }
+      end
+
+      describe '#port' do
+        subject { super().port }
+        it { is_expected.to eq(1337) }
+      end
+
+      describe '#type' do
+        subject { super().type }
+        it { is_expected.to eq(:cucumber) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq("Cucumber") }
+      end
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == %w{bundle exec spork cu -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec spork cu -p 1337}) }
+        end
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork cu -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork cu -p 1337}) }
+        end
       end
 
       context "with foreman enabled and env name option" do
         let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork cu -p 1337 -e=.env.test}}
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork cu -p 1337 -e=.env.test})}
+        end
       end
     end
 
@@ -66,27 +114,51 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:test_unit, 1337, {}, options) }
 
-      its(:command) { should == %w{spork testunit -p 1337} }
-      its(:port) { should == 1337 }
-      its(:type) { should == :test_unit }
-      its(:to_s) { should == "Test::Unit" }
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(%w{spork testunit -p 1337}) }
+      end
+
+      describe '#port' do
+        subject { super().port }
+        it { is_expected.to eq(1337) }
+      end
+
+      describe '#type' do
+        subject { super().type }
+        it { is_expected.to eq(:test_unit) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq("Test::Unit") }
+      end
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == %w{bundle exec spork testunit -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec spork testunit -p 1337}) }
+        end
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork testunit -p 1337} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork testunit -p 1337}) }
+        end
       end
 
       context "with foreman enabled and env name option" do
         let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork testunit -p 1337 -e=.env.test}}
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork testunit -p 1337 -e=.env.test})}
+        end
       end
     end
 
@@ -94,27 +166,51 @@ class Guard::Spork
       let(:options) { Hash.new }
       subject { SporkInstance.new(:minitest, 1338, {}, options) }
 
-      its(:command) { should == %w{spork minitest -p 1338} }
-      its(:port) { should == 1338 }
-      its(:type) { should == :minitest }
-      its(:to_s) { should == "MiniTest" }
+      describe '#command' do
+        subject { super().command }
+        it { is_expected.to eq(%w{spork minitest -p 1338}) }
+      end
+
+      describe '#port' do
+        subject { super().port }
+        it { is_expected.to eq(1338) }
+      end
+
+      describe '#type' do
+        subject { super().type }
+        it { is_expected.to eq(:minitest) }
+      end
+
+      describe '#to_s' do
+        subject { super().to_s }
+        it { is_expected.to eq("MiniTest") }
+      end
 
       context "with bundler enabled" do
         let(:options) { {:bundler => true} }
 
-        its(:command) { should == %w{bundle exec spork minitest -p 1338} }
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec spork minitest -p 1338}) }
+        end
       end
 
       context "with foreman enabled" do
         let(:options) { { :foreman => true, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork minitest -p 1338}}
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork minitest -p 1338})}
+        end
       end
 
       context "with foreman enabled and env name option" do
         let(:options) { { :foreman => { :env => ".env.test" }, :bundler => true } }
 
-        its(:command) { should == %w{bundle exec foreman run spork minitest -p 1338 -e=.env.test}}
+        describe '#command' do
+          subject { super().command }
+          it { is_expected.to eq(%w{bundle exec foreman run spork minitest -p 1338 -e=.env.test})}
+        end
       end
     end
 
@@ -131,7 +227,7 @@ class Guard::Spork
 
       it "uses ChildProcess and stores the pid" do
         process = double("process").as_null_object
-        ChildProcess.should_receive(:build).and_return(process)
+        expect(ChildProcess).to receive(:build).and_return(process)
         process.stub(:pid => "a pid")
         expect {
           instance.start
@@ -141,10 +237,10 @@ class Guard::Spork
       it "passes environment to the ChildProcess" do
         instance.stub(:command => "command", :env => {:environment => true})
         process = double("process").as_null_object
-        ChildProcess.should_receive(:build).and_return(process)
+        expect(ChildProcess).to receive(:build).and_return(process)
         process_env = {}
-        process.should_receive(:environment).and_return(process_env)
-        process_env.should_receive(:merge!).with(:environment => true)
+        expect(process).to receive(:environment).and_return(process_env)
+        expect(process_env).to receive(:merge!).with(:environment => true)
         instance.start
       end
     end
@@ -152,8 +248,8 @@ class Guard::Spork
     describe "#stop" do
       it "delegates to ChildProcess#stop" do
         process = double("a process")
-        instance.stub(:process).and_return(process)
-        process.should_receive(:stop)
+        allow(instance).to receive(:process).and_return(process)
+        expect(process).to receive(:stop)
         instance.stop
       end
     end
@@ -165,7 +261,7 @@ class Guard::Spork
       end
 
       context "when no pid is set" do
-        it { should_not be_alive }
+        it { is_expected.not_to be_alive }
       end
 
       context "when the pid is a running process" do
@@ -176,7 +272,7 @@ class Guard::Spork
           process.stub(:alive? => true)
         end
 
-        it { should be_alive }
+        it { is_expected.to be_alive }
       end
 
       context "when the pid is a stopped process" do
@@ -188,7 +284,7 @@ class Guard::Spork
           process.stub(:alive? => false)
         end
 
-        it { should_not be_alive }
+        it { is_expected.not_to be_alive }
       end
     end
 
@@ -203,41 +299,41 @@ class Guard::Spork
 
       context "when no pid is specified" do
         before(:each) { instance.stub(:pid => nil) }
-        it { should_not be_running }
+        it { is_expected.not_to be_running }
       end
 
       context "when process is not alive" do
         before(:each) { instance.stub(:alive? => false)}
-        it { should_not be_running }
+        it { is_expected.not_to be_running }
       end
 
       context "when spork does not respond" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_raise(Errno::ECONNREFUSED)
+          expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_raise(Errno::ECONNREFUSED)
           instance.stub(:alive? => true)
         end
 
-        it { should_not be_running }
+        it { is_expected.not_to be_running }
       end
 
       context "when spork accepts the connection" do
         before(:each) do
-          TCPSocket.should_receive(:new).with('127.0.0.1', 1337).and_return(socket)
+          expect(TCPSocket).to receive(:new).with('127.0.0.1', 1337).and_return(socket)
           instance.stub(:alive? => true)
         end
 
-        it { should be_running }
+        it { is_expected.to be_running }
       end
     end
 
     describe ".spork_pids" do
       it "returns all the pids belonging to spork" do
-        instance.class.stub(:`).and_return { |command| raise "Unexpected command: #{command}" }
-        instance.class.should_receive(:`).
+        allow(instance.class).to receive(:`) { |command| raise "Unexpected command: #{command}" }
+        expect(instance.class).to receive(:`).
           with(%q[ps aux | grep -v guard | awk '/spork/&&!/awk/{print $2;}']).
           and_return("666\n999")
 
-        instance.class.spork_pids.should == [666, 999]
+        expect(instance.class.spork_pids).to eq([666, 999])
       end
     end
 
