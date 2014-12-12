@@ -1,6 +1,6 @@
-require 'spec_helper'
+require "guard/spork"
 
-describe Guard::Spork do
+RSpec.describe Guard::Spork do
   subject { Guard::Spork.new }
   let(:runner) { subject.runner }
 

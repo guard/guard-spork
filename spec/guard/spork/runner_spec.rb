@@ -1,7 +1,8 @@
-require 'spec_helper'
 require 'timeout'
 
-describe Guard::Spork::Runner do
+require "guard/spork"
+
+RSpec.describe Guard::Spork::Runner do
   let(:runner) { Guard::Spork::Runner.new }
 
   describe "default options" do
@@ -17,7 +18,7 @@ describe Guard::Spork::Runner do
     it { is_expected.to include(:cucumber_env => {}) }
     it { is_expected.to include(:aggressive_kill => true) }
     it { is_expected.to include(:foreman => false) }
-    it { is_expected.to include(:quiet => false) }    
+    it { is_expected.to include(:quiet => false) }
   end
 
   before(:each) do
@@ -480,10 +481,10 @@ describe Guard::Spork::Runner do
   end
 
   describe "#should_use?(what)" do
-    subject {runner.send(:should_use?, :what)}
+    subject {runner.send(:should_use?, :bundler)}
 
     context "with the detection succeeding" do
-      before(:each) { allow(runner).to receive_messages(:detect_what => true) }
+      before(:each) { allow(runner).to receive_messages(:detect_bundler => true) }
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
 
       context "with no option specified" do
@@ -491,32 +492,32 @@ describe Guard::Spork::Runner do
       end
 
       context "with an option set to false" do
-        before(:each) {runner.options[:what] = false}
+        before(:each) {runner.options[:bundler] = false}
         it {is_expected.to be_falsey}
       end
 
       context "with an option set to true" do
-        before(:each) {runner.options[:what] = true}
+        before(:each) {runner.options[:bundler] = true}
         it {is_expected.to be_truthy}
       end
     end
 
     context "with the detection failing" do
-      before(:each) { allow(runner).to receive_messages(:detect_what => false) }
+      before(:each) { allow(runner).to receive_messages(:detect_minitest => false) }
 
       # Not sure this is the best way of testing this, but since the behavior is the same regardless of the argument...
-      subject {runner.send(:should_use?, :what)}
+      subject {runner.send(:should_use?, :minitest)}
       context "with no option specified" do
         it {is_expected.to be_falsey}
       end
 
       context "with an option set to false" do
-        before(:each) {runner.options[:what] = false}
+        before(:each) {runner.options[:minitest] = false}
         it {is_expected.to be_falsey}
       end
 
       context "with an option set to true" do
-        before(:each) {runner.options[:what] = true}
+        before(:each) {runner.options[:minitest] = true}
         it {is_expected.to be_truthy}
       end
     end
