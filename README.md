@@ -1,4 +1,5 @@
-# Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spork)
+# Guard::Spork [![Build Status](https://secure.travis-ci.org/guard/guard-spork.png)](http://travis-ci.org/guard/guard-spork) [![Dependency Status](https://gemnasium.com/guard/guard-spork.png)](https://gemnasium.com/guard/guard-spork) [![Gem Version](https://badge.fury.io/rb/guard-spork.png)](http://badge.fury.io/rb/guard-spork)
+
 
 Guard::Spork allows to automatically & intelligently start/reload your RSpec/Cucumber/Test::Unit [Spork](https://github.com/sporkrb/spork) server(s).
 
