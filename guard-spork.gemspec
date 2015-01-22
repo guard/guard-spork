@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://rubygems.org/gems/guard-spork'
   s.summary     = 'Guard gem for Spork'
   s.description = 'Guard::Spork automatically manage Spork DRb servers.'
+  s.license     = 'MIT'
 
   s.required_ruby_version     = '>= 1.9.3'
   s.required_rubygems_version = '>= 1.3.6'
