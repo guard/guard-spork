@@ -1,7 +1,8 @@
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.2
+  - 2.1.7
+  - 2.2.3
   - jruby
   - rbx
 matrix:
@@ -13,3 +14,4 @@ notifications:
   recipients:
     - xrkhill@gmail.com
   irc: "irc.freenode.org#guard"
+sudo: false
